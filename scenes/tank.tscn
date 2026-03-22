@@ -1,0 +1,74 @@
+[gd_scene load_steps=7 format=3 uid="uid://vvn4dn2achhx"]
+
+[ext_resource type="Script" uid="uid://osa633jwao6n" path="res://scripts/tank.gd" id="1_c4xvs"]
+[ext_resource type="Texture2D" uid="uid://cb7gxfjjhgr6l" path="res://assets/rifle/002__000.png" id="2_01nm4"]
+[ext_resource type="AudioStream" uid="uid://cx4u2rlrbh0e2" path="res://assets/sounds/bullet_hits/bullet_ametal.mp3" id="3_k4vtj"]
+[ext_resource type="AudioStream" uid="uid://ht03g3rauimc" path="res://assets/sounds/bullet_hits/bullet_ametal2.mp3" id="4_lj6hj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k4vtj"]
+size = Vector2(20, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lj6hj"]
+size = Vector2(30, 24)
+
+[node name="Tank" type="CharacterBody2D" groups=["Enemy", "Soldier", "Tanks"]]
+position = Vector2(0, -1)
+collision_layer = 14
+collision_mask = 14
+script = ExtResource("1_c4xvs")
+angle = 80.0
+length = 200.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(20, 5)
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_01nm4")
+
+[node name="Spawn_bullet" type="Node2D" parent="Sprite2D"]
+position = Vector2(40, -8)
+
+[node name="Spawn_bullet2" type="Node2D" parent="Sprite2D"]
+position = Vector2(32, 8)
+
+[node name="Spawn_bullet3" type="Node2D" parent="Sprite2D"]
+position = Vector2(32, -20)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 1)
+shape = SubResource("RectangleShape2D_k4vtj")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-1, 1)
+shape = SubResource("RectangleShape2D_lj6hj")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.8
+
+[node name="Cooldown" type="Timer" parent="."]
+
+[node name="Sight" type="RayCast2D" parent="."]
+position = Vector2(23, 1)
+collision_mask = 6
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
+
+[node name="nv_timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="memory_timer" type="Timer" parent="."]
+autostart = true
+
+[node name="atked" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_k4vtj")
+
+[node name="atked2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_lj6hj")
+
+[connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
+[connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]
+[connection signal="timeout" from="memory_timer" to="." method="_on_memory_timer_timeout"]

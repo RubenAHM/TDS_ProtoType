@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://cvj7iyb6vhmlj"]
+
+[ext_resource type="Texture2D" uid="uid://ddxm8xv6ypkdk" path="res://assets/Pickups/health-red 32px.png" id="1_0ml1n"]
+[ext_resource type="Script" uid="uid://t4j23ixu2a1n" path="res://scripts/healing.gd" id="2_mtwfi"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mtwfi"]
+size = Vector2(16, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_osqvg"]
+size = Vector2(22, 22)
+
+[node name="Healing" type="CharacterBody2D" groups=["Items"]]
+scale = Vector2(0.5, 0.5)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_0ml1n")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_mtwfi")
+
+[node name="Area2D" type="Area2D" parent="."]
+script = ExtResource("2_mtwfi")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_osqvg")
+
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

@@ -1,0 +1,68 @@
+[gd_scene load_steps=7 format=3 uid="uid://daleo7rdncfew"]
+
+[ext_resource type="Script" uid="uid://8m2s77akjjaa" path="res://scripts/hgunner.gd" id="1_xo0qu"]
+[ext_resource type="Texture2D" uid="uid://cby0aqthsneym" path="res://assets/rifle/idle/survivor-idle_rifle_0.png" id="2_1ytah"]
+[ext_resource type="AudioStream" uid="uid://dvef6x6f511p6" path="res://assets/sounds/bullet_hits/bulltet_hit_enemy.mp3" id="3_hy4nv"]
+[ext_resource type="AudioStream" uid="uid://btgo8ejo7yb2j" path="res://assets/sounds/bullet_hits/enmz_attckd.mp3" id="4_f45is"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hy4nv"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_f45is"]
+
+[node name="Hgunner" type="CharacterBody2D" groups=["Enemy", "Soldier"]]
+collision_layer = 14
+collision_mask = 14
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_xo0qu")
+angle = 60.0
+length = 220.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.1, 0.1)
+texture = ExtResource("2_1ytah")
+
+[node name="Spawn_bullet" type="Node2D" parent="Sprite2D"]
+position = Vector2(180, 50)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-3, 3)
+shape = SubResource("CircleShape2D_hy4nv")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-3, 3)
+shape = SubResource("CircleShape2D_f45is")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.2
+
+[node name="Cooldown" type="Timer" parent="."]
+wait_time = 0.3
+
+[node name="Sight" type="RayCast2D" parent="."]
+position = Vector2(12, 3)
+collision_mask = 6
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
+
+[node name="nv_timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="memory_timer" type="Timer" parent="."]
+autostart = true
+
+[node name="atked" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_hy4nv")
+
+[node name="atked2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_f45is")
+
+[connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
+[connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]
+[connection signal="timeout" from="memory_timer" to="." method="_on_memory_timer_timeout"]

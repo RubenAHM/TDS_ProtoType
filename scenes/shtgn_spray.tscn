@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://b31o2kdin56nu"]
+
+[ext_resource type="Script" uid="uid://dhhnwxxtu0mfx" path="res://scripts/shtgn_spray.gd" id="1_7yw48"]
+[ext_resource type="Texture2D" uid="uid://cb65u62pijs0q" path="res://assets/future-tds/particles/projectiledestroy_1.png" id="2_3m75f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a1hj8"]
+size = Vector2(13.5, 2.40689)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wlq55"]
+size = Vector2(25, 6.01722)
+
+[node name="Shtgn_Spray" type="CharacterBody2D" groups=["Bullets"]]
+scale = Vector2(1.2, 1)
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_7yw48")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-0.499999, 0.25)
+scale = Vector2(0.2, 0.4)
+texture = ExtResource("2_3m75f")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+position = Vector2(-0.4, 0.481)
+scale = Vector2(0.4, 0.4)
+shape = SubResource("RectangleShape2D_a1hj8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 0.3)
+scale = Vector2(0.2, 0.2)
+shape = SubResource("RectangleShape2D_wlq55")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(-0.5, 0.601722)
+scale = Vector2(0.65, 0.300861)

@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://b1xhxnj0w6mf1"]
+
+[ext_resource type="Texture2D" uid="uid://dp5xupufiney2" path="res://assets/Pickups/ammo-shotgun 32px.png" id="1_bxhxu"]
+[ext_resource type="Script" uid="uid://dia5nr2xkmrd8" path="res://scripts/ammo_12_gauge.gd" id="2_wvev5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wvev5"]
+size = Vector2(16, 11)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oe8qn"]
+size = Vector2(22, 23)
+
+[node name="ammo_12_gauge" type="CharacterBody2D" groups=["Items"]]
+scale = Vector2(0.25, 0.25)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_bxhxu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_wvev5")
+
+[node name="Area2D" type="Area2D" parent="."]
+script = ExtResource("2_wvev5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_oe8qn")
+
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]

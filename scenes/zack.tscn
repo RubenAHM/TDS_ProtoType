@@ -1,0 +1,335 @@
+[gd_scene load_steps=25 format=3 uid="uid://ijscf8en6nhw"]
+
+[ext_resource type="Script" uid="uid://cyqbwp24cmyjw" path="res://scripts/zack.gd" id="1_igtd3"]
+[ext_resource type="Texture2D" uid="uid://b2e4k1al1wnie" path="res://assets/player_walk_strip6.png" id="2_3dnrk"]
+[ext_resource type="AudioStream" uid="uid://d0la5jo3lbotr" path="res://assets/sounds/blade-piercing-body-352462.mp3" id="3_3dnrk"]
+[ext_resource type="Texture2D" uid="uid://cs78bugs22hkk" path="res://assets/player_9mmhandgun (1).png" id="3_i16mk"]
+[ext_resource type="AudioStream" uid="uid://c3n1rtuop8p6u" path="res://assets/sounds/gun_reload.mp3" id="4_7dmly"]
+[ext_resource type="Texture2D" uid="uid://dc0k52ty2okyf" path="res://assets/player_run_strip6.png" id="4_wmleu"]
+[ext_resource type="AudioStream" uid="uid://ce60jy8hlv1t2" path="res://assets/sounds/shotgun_reload.mp3" id="5_5mvwr"]
+[ext_resource type="AudioStream" uid="uid://btmkuvknmptfo" path="res://assets/sounds/bullet_hits/bullet_hit_zack.mp3" id="6_tvhpg"]
+[ext_resource type="AudioStream" uid="uid://bk3v66b67bqcv" path="res://assets/sounds/bullet_hits/zack_grunt.mp3" id="7_rcs5t"]
+[ext_resource type="AudioStream" uid="uid://dg7ti7txeni8y" path="res://assets/sounds/c_weapon.mp3" id="8_wkhdx"]
+[ext_resource type="Texture2D" uid="uid://dny12u2g176bk" path="res://assets/future-tds/light.png" id="11_rcs5t"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wmleu"]
+radius = 14.1421
+
+[sub_resource type="Animation" id="Animation_wmleu"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("gunz:frame")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("run:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_rcs5t"]
+resource_name = "aim_gun"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gunz:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_gadkb"]
+resource_name = "aim_m16"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gunz:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [2]
+}
+
+[sub_resource type="Animation" id="Animation_jp4wp"]
+resource_name = "aim_mp5"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gunz:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [2]
+}
+
+[sub_resource type="Animation" id="Animation_wkhdx"]
+resource_name = "aim_shtgn"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("gunz:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [3]
+}
+
+[sub_resource type="Animation" id="Animation_i16mk"]
+resource_name = "idle"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_tvhpg"]
+resource_name = "run"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("run:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.166667, 0.333333, 0.5, 0.666667, 0.8, 0.966667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 0]
+}
+
+[sub_resource type="Animation" id="Animation_4m8j1"]
+resource_name = "walk"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 0.966667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 2, 3, 4, 5, 0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_4m8j1"]
+_data = {
+&"RESET": SubResource("Animation_wmleu"),
+&"aim_gun": SubResource("Animation_rcs5t"),
+&"aim_m16": SubResource("Animation_gadkb"),
+&"aim_mp5": SubResource("Animation_jp4wp"),
+&"aim_shtgn": SubResource("Animation_wkhdx"),
+&"idle": SubResource("Animation_i16mk"),
+&"run": SubResource("Animation_tvhpg"),
+&"walk": SubResource("Animation_4m8j1")
+}
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wkhdx"]
+radius = 9.03635
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jp4wp"]
+polygon = PackedVector2Array(-24, -1, 191, -108, -25, -107)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_gadkb"]
+polygon = PackedVector2Array(-24, -2, 191, 108, -19, 107)
+
+[node name="Zack" type="CharacterBody2D" groups=["Player"]]
+collision_layer = 7
+script = ExtResource("1_igtd3")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -1.2)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_3dnrk")
+hframes = 6
+
+[node name="SpawnPoint" type="Node2D" parent="Sprite2D"]
+position = Vector2(34, 2.5)
+scale = Vector2(2, 2)
+
+[node name="SpawnPoint2" type="Node2D" parent="Sprite2D"]
+position = Vector2(28, -5.6)
+scale = Vector2(2, 2)
+
+[node name="SpawnPoint3" type="Node2D" parent="Sprite2D"]
+position = Vector2(30, 12.4)
+scale = Vector2(2, 2)
+
+[node name="SpawnPoint4" type="Node2D" parent="Sprite2D"]
+position = Vector2(24, 20.4)
+scale = Vector2(2, 2)
+
+[node name="SpawnPoint5" type="Node2D" parent="Sprite2D"]
+position = Vector2(22, -13.6)
+scale = Vector2(2, 2)
+
+[node name="gunz" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+position = Vector2(2, -1.2)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_i16mk")
+hframes = 4
+
+[node name="run" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+position = Vector2(-1, -1.2)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_wmleu")
+hframes = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 0)
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CircleShape2D_wmleu")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_4m8j1")
+}
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-2, 0.3)
+shape = SubResource("CircleShape2D_wkhdx")
+
+[node name="Hg_fr" type="Timer" parent="."]
+wait_time = 0.8
+autostart = true
+
+[node name="Mp5_fr" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[node name="M16_fr" type="Timer" parent="."]
+wait_time = 0.3
+autostart = true
+
+[node name="Shotgun_fr" type="Timer" parent="."]
+wait_time = 1.2
+autostart = true
+
+[node name="Invul" type="Timer" parent="."]
+autostart = true
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.2
+autostart = true
+
+[node name="Reload_time" type="Timer" parent="."]
+wait_time = 1.2
+autostart = true
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Ammo" type="Label" parent="HUD"]
+offset_left = 42.0
+offset_top = 11.0
+offset_right = 82.0
+offset_bottom = 34.0
+
+[node name="Line2D" type="Line2D" parent="HUD"]
+position = Vector2(40, 50)
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 100, 0)
+width = 5.0
+default_color = Color(0, 0, 0, 1)
+
+[node name="Health" type="Line2D" parent="HUD"]
+position = Vector2(40, 50)
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 100, 0)
+width = 5.0
+default_color = Color(0.729412, 0.0666667, 0.0784314, 1)
+
+[node name="atked" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_3dnrk")
+volume_db = -8.21
+
+[node name="atked2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_tvhpg")
+
+[node name="grunt" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_rcs5t")
+
+[node name="reload_23" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_7dmly")
+
+[node name="reload_4" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_5mvwr")
+
+[node name="c_weapon" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_wkhdx")
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+position = Vector2(71.75, -0.249997)
+scale = Vector2(2.83594, 3.24219)
+energy = 0.11
+shadow_enabled = true
+texture = ExtResource("11_rcs5t")
+texture_scale = 2.39
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+position = Vector2(-2, 0)
+occluder = SubResource("OccluderPolygon2D_jp4wp")
+
+[node name="LightOccluder2D2" type="LightOccluder2D" parent="."]
+position = Vector2(-2, 1)
+occluder = SubResource("OccluderPolygon2D_gadkb")

@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://4n7hdvdxq1hh"]
+
+[ext_resource type="Script" uid="uid://rqh7dtnse734" path="res://scripts/testing.gd" id="1_uk4pe"]
+[ext_resource type="Texture2D" uid="uid://d1dm5hp06objk" path="res://assets/officer_shoot_strip.png" id="2_nv1un"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ljsy8"]
+
+[node name="Node2D" type="CharacterBody2D"]
+scale = Vector2(0.5, 0.5)
+script = ExtResource("1_uk4pe")
+angle = 60.0
+length = 500.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_nv1un")
+hframes = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ljsy8")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

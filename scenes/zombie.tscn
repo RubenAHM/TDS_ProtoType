@@ -1,0 +1,106 @@
+[gd_scene load_steps=8 format=3 uid="uid://dn88fxmnun17j"]
+
+[ext_resource type="Script" uid="uid://rk60i2ddy38x" path="res://scripts/zombie.gd" id="1_httt1"]
+[ext_resource type="Texture2D" uid="uid://kuw5b63ikj0q" path="res://assets/zombiebasic-1.png (1).png" id="2_xepks"]
+[ext_resource type="Script" uid="uid://cnc74avadxgbd" path="res://scripts/area_2d.gd" id="3_xepks"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4gx57"]
+radius = 5.09902
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_4gx57"]
+radius = 3.0
+height = 12.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xepks"]
+radius = 2.0
+height = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ycv6i"]
+radius = 10.0499
+
+[node name="Zombie" type="CharacterBody2D" groups=["Enemy", "Enemyz"]]
+collision_layer = 6
+collision_mask = 6
+motion_mode = 1
+wall_min_slide_angle = 0.0
+script = ExtResource("1_httt1")
+angle = 80.0
+length = 200.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(12, 0)
+rotation = 1.5708
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_xepks")
+hframes = 5
+vframes = 2
+frame = 1
+
+[node name="Spawn_bullet" type="Node2D" parent="Sprite2D"]
+position = Vector2(2, -25)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+light_mask = 2
+visibility_layer = 2
+position = Vector2(-1, 0)
+shape = SubResource("CircleShape2D_4gx57")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
+light_mask = 2
+visibility_layer = 2
+position = Vector2(-8, 0)
+scale = Vector2(0.8, 0.8)
+shape = SubResource("CapsuleShape2D_4gx57")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="."]
+position = Vector2(4, -7)
+rotation = 1.5708
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CapsuleShape2D_xepks")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="."]
+position = Vector2(4, 7)
+rotation = 1.5708
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CapsuleShape2D_xepks")
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(28, -31)
+script = ExtResource("3_xepks")
+
+[node name="Timer" type="Timer" parent="Area2D"]
+wait_time = 1.25
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+light_mask = 3
+visibility_layer = 3
+position = Vector2(-26, 31)
+shape = SubResource("CircleShape2D_ycv6i")
+
+[node name="nv_timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
+
+[node name="Sight" type="RayCast2D" parent="."]
+position = Vector2(14, 0)
+target_position = Vector2(0, 25)
+collision_mask = 6
+
+[node name="memory_timer" type="Timer" parent="."]
+autostart = true
+
+[node name="Cooldown" type="Timer" parent="."]
+wait_time = 0.3
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+
+[connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
+[connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]
+[connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]
+[connection signal="timeout" from="memory_timer" to="." method="_on_memory_timer_timeout"]
+[connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]

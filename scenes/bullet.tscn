@@ -1,0 +1,55 @@
+[gd_scene load_steps=9 format=3 uid="uid://cpxqar3fxluqf"]
+
+[ext_resource type="Texture2D" uid="uid://cb65u62pijs0q" path="res://assets/future-tds/particles/projectiledestroy_1.png" id="1_mkf8s"]
+[ext_resource type="Script" uid="uid://dlhg3svipf3bo" path="res://scenes/bullet.gd" id="1_y25gk"]
+[ext_resource type="AudioStream" uid="uid://8mbi05g1j2q0" path="res://assets/sounds/hgun.mp3" id="3_l5glv"]
+[ext_resource type="AudioStream" uid="uid://conr2qaq1l3oh" path="res://assets/sounds/mp5.mp3" id="4_qncy5"]
+[ext_resource type="AudioStream" uid="uid://bg7kug3xnw6pe" path="res://assets/sounds/m16.mp3" id="5_tamys"]
+[ext_resource type="AudioStream" uid="uid://b7ru5ibcaypxg" path="res://assets/sounds/shotgun.mp3" id="6_tamys"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l5glv"]
+size = Vector2(13.5, 2.40689)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y25gk"]
+size = Vector2(25, 6.01722)
+
+[node name="Bullet" type="CharacterBody2D" groups=["Bullets"]]
+scale = Vector2(1.203, 1)
+collision_layer = 6
+collision_mask = 6
+script = ExtResource("1_y25gk")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-0.499999, 0.25)
+scale = Vector2(0.2, 0.4)
+texture = ExtResource("1_mkf8s")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+position = Vector2(-0.4, 0.481)
+scale = Vector2(0.4, 0.4)
+shape = SubResource("RectangleShape2D_l5glv")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 0.3)
+scale = Vector2(0.2, 0.2)
+shape = SubResource("RectangleShape2D_y25gk")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(-0.5, 0.601722)
+scale = Vector2(0.65, 0.300861)
+
+[node name="hgun" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_l5glv")
+
+[node name="mp5" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_qncy5")
+
+[node name="m16" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_tamys")
+
+[node name="shtgn" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_tamys")

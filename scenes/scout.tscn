@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://g8cy13skg0yd"]
+
+[ext_resource type="Script" uid="uid://fqm0rhbvncls" path="res://scripts/scout.gd" id="1_7hcjh"]
+[ext_resource type="Texture2D" uid="uid://q8v63o12swha" path="res://assets/post-apoc-tds/enemy_default.png" id="2_5iy45"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ksba2"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fi6b0"]
+
+[node name="Scout" type="CharacterBody2D" groups=["Enemy"]]
+script = ExtResource("1_7hcjh")
+angle = 60.0
+length = 200.0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_5iy45")
+
+[node name="Spawn_bullet" type="Node2D" parent="Sprite2D"]
+position = Vector2(18, 5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-3, 3)
+shape = SubResource("CircleShape2D_ksba2")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-3, 3)
+shape = SubResource("CircleShape2D_fi6b0")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="Cooldown" type="Timer" parent="."]
+wait_time = 0.3
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2(-3, 2)
+collision_mask = 6
+
+[node name="Sight" type="RayCast2D" parent="."]
+position = Vector2(-3, 2)
+collision_mask = 6
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
+
+[node name="nv_timer" type="Timer" parent="."]
+wait_time = 0.5
+autostart = true
+
+[connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
+[connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]

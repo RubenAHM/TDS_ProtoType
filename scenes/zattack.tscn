@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://c21pcyypbdacl"]
+
+[ext_resource type="Texture2D" uid="uid://cxa22by72dpwp" path="res://assets/zombiebasic.png" id="1_dsugj"]
+[ext_resource type="Script" uid="uid://didd0y0rpdxlv" path="res://scripts/zattack.gd" id="1_mfwpn"]
+[ext_resource type="AudioStream" uid="uid://d0la5jo3lbotr" path="res://assets/sounds/blade-piercing-body-352462.mp3" id="3_8wnp2"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mfwpn"]
+height = 52.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8wnp2"]
+radius = 12.0
+height = 96.0
+
+[node name="zattack" type="CharacterBody2D"]
+scale = Vector2(0.15, 0.15)
+collision_layer = 9
+collision_mask = 9
+script = ExtResource("1_mfwpn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 6)
+shape = SubResource("CapsuleShape2D_mfwpn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(14.5, -66)
+scale = Vector2(1.06452, 1)
+texture = ExtResource("1_dsugj")
+hframes = 4
+frame = 3
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 9
+collision_mask = 9
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+position = Vector2(-1, 0)
+shape = SubResource("CapsuleShape2D_8wnp2")
+
+[node name="atked" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_8wnp2")
+
+[connection signal="finished" from="atked" to="." method="_on_atked_finished"]

@@ -1,0 +1,50 @@
+[gd_scene load_steps=8 format=3 uid="uid://ckem8r5qf5kah"]
+
+[ext_resource type="Script" uid="uid://1lihwn7quamt" path="res://scripts/enemy_bullet.gd" id="1_38r62"]
+[ext_resource type="Texture2D" uid="uid://bjqsdw03wyo1d" path="res://assets/future-tds/particles/projectile_gun.png" id="2_38r62"]
+[ext_resource type="AudioStream" uid="uid://r08dx1awr5fc" path="res://assets/sounds/762x54r Single MP3.mp3" id="3_02qb5"]
+[ext_resource type="AudioStream" uid="uid://wbspaje87uev" path="res://assets/sounds/single-gunshot-2-102304.mp3" id="3_ckxic"]
+[ext_resource type="AudioStream" uid="uid://07iyrf07gicq" path="res://assets/sounds/tank_shotgun.mp3" id="5_02qb5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0rhp8"]
+size = Vector2(13.5, 2.40689)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tqpqc"]
+size = Vector2(25, 6.01722)
+
+[node name="Enemy_bullet" type="CharacterBody2D" groups=["Bullets"]]
+collision_layer = 6
+collision_mask = 6
+script = ExtResource("1_38r62")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-0.499999, 0.25)
+scale = Vector2(0.25, 0.5)
+texture = ExtResource("2_38r62")
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+position = Vector2(-0.4, 0.481)
+scale = Vector2(0.4, 0.4)
+shape = SubResource("RectangleShape2D_0rhp8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, 0.3)
+scale = Vector2(0.2, 0.2)
+shape = SubResource("RectangleShape2D_tqpqc")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(-0.5, 0.601722)
+scale = Vector2(0.65, 0.300861)
+
+[node name="Sniper" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_ckxic")
+
+[node name="M4A1" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_02qb5")
+
+[node name="Shotgun" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_02qb5")
