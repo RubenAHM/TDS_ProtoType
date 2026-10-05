@@ -52,6 +52,7 @@ autostart = true
 autostart = true
 
 [node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
+target_desired_distance = 20.0
 
 [node name="atked" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_hjovk")

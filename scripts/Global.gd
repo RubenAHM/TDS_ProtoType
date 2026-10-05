@@ -18,3 +18,6 @@ var current_weapon = 1
 var life = 100
 var dmg_soldier1 = 5
 var dmg_soldier2 = 20
+
+# NUEVA SEÑAL para la curación
+signal health_picked_up(heal_amount: int)

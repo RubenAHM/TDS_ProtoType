@@ -219,7 +219,9 @@ func has_line_of_sight():
 func reaction():
 	var distance_to_target = position.distance_to(target.position)
 	if distance_to_target <= REACT_DISTANCE: #and (is_in_cone() and has_line_of_sight()):
-		look_at(target.position)
+		#look_at(target.position)
+		var target_angle = (current_target.global_position - global_position).angle()
+		rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 	elif hitbox and current_target == null:
 		current_state = State.SEARCHING
 		hitbox = false
@@ -264,13 +266,17 @@ func _physics_process(delta: float) -> void:
 		if current_target_type == TargetType.PLAYER:
 			if current_state == State.STANDING or current_state == State.INVESTIGATING or current_state == State.COMBAT_SOLDIER:
 				current_state = State.APPROACHING
-			look_at(current_target.position)
+			#look_at(current_target.position)
 			#aim()
+			var target_angle = (current_target.global_position - global_position).angle()
+			rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 		elif current_target_type == TargetType.SOLDIER:
 			if current_state == State.STANDING or current_state == State.INVESTIGATING or current_state == State.APPROACHING:
 				current_state = State.COMBAT_SOLDIER
-			look_at(current_target.position)
+			#look_at(current_target.position)
 			#aim()
+			var target_angle = (current_target.global_position - global_position).angle()
+			rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 	
 	
 	check_player_collision()

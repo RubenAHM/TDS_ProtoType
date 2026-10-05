@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://1tqpcc4gkkiv"]
+
+[ext_resource type="Texture2D" uid="uid://dbucgmtmyu8pa" path="res://assets/mwoassets/light.png" id="1_gle1i"]
+[ext_resource type="Script" uid="uid://x7fonmhe2xav" path="res://scripts/gun_spark.gd" id="2_lcys3"]
+
+[node name="Node2D" type="PointLight2D"]
+energy = 3.22
+shadow_enabled = true
+texture = ExtResource("1_gle1i")
+texture_scale = 0.01
+script = ExtResource("2_lcys3")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

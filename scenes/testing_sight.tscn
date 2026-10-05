@@ -8,8 +8,6 @@
 [node name="Node2D" type="CharacterBody2D"]
 scale = Vector2(0.5, 0.5)
 script = ExtResource("1_uk4pe")
-angle = 60.0
-length = 500.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_nv1un")

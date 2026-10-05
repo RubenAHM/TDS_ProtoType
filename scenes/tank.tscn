@@ -53,6 +53,7 @@ position = Vector2(23, 1)
 collision_mask = 6
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+target_desired_distance = 20.0
 
 [node name="NavigationAgent2D2" type="NavigationAgent2D" parent="."]
 

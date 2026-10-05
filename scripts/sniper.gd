@@ -253,7 +253,9 @@ func reaction():
 	if current_target != null:
 		distance_to_current_target = position.distance_to(current_target.position)
 	if distance_to_target <= REACT_DISTANCE: #and (is_in_cone() and has_line_of_sight()):
-		look_at(target.position)
+		#look_at(target.position)
+		var target_angle = (target.global_position - global_position).angle()
+		rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 	elif hitbox and (current_target == null or distance_to_current_target < 25):
 		#print("herido")
 		current_state = State.SEARCHING
@@ -299,13 +301,17 @@ func _physics_process(delta: float) -> void:
 		if current_target_type == TargetType.PLAYER:
 			if current_state == State.PATROLLING or current_state == State.INVESTIGATING or current_state == State.COMBAT_ZOMBIE:
 				current_state = State.APPROACHING
-			look_at(current_target.position)
+			#look_at(current_target.position)
 			#aim()  
+			var target_angle = (current_target.global_position - global_position).angle()
+			rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 		elif current_target_type == TargetType.ZOMBIE:
 			if current_state == State.PATROLLING or current_state == State.INVESTIGATING or current_state == State.APPROACHING:
 				current_state = State.COMBAT_ZOMBIE
-			look_at(current_target.position)
+			#look_at(current_target.position)
 			#aim()  
+			var target_angle = (current_target.global_position - global_position).angle()
+			rotation = lerp_angle(rotation, target_angle, 0.1) # 0.1 es la velocidad de giro
 	
 	
 	

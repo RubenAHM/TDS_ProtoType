@@ -1,0 +1,16 @@
+res://scenes/test_level.tscn
+res://scripts/scout.gd
+res://scripts/soldier_1.gd
+res://scenes/zack.tscn
+res://scenes/zombie.tscn
+res://scenes/healing.tscn
+res://scenes/soldier_1.tscn
+res://scenes/bullet.tscn
+res://scenes/testing_sight.tscn
+res://scenes/zattack.tscn
+res://scenes/hgunner.tscn
+res://scenes/sniper.tscn
+res://scenes/tank.tscn
+res://scenes/dmged_car.tscn
+res://scenes/scout.tscn
+res://scripts/hgunner.gd

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://ijscf8en6nhw"]
+[gd_scene load_steps=27 format=3 uid="uid://ijscf8en6nhw"]
 
 [ext_resource type="Script" uid="uid://cyqbwp24cmyjw" path="res://scripts/zack.gd" id="1_igtd3"]
 [ext_resource type="Texture2D" uid="uid://b2e4k1al1wnie" path="res://assets/player_walk_strip6.png" id="2_3dnrk"]
@@ -10,7 +10,11 @@
 [ext_resource type="AudioStream" uid="uid://btmkuvknmptfo" path="res://assets/sounds/bullet_hits/bullet_hit_zack.mp3" id="6_tvhpg"]
 [ext_resource type="AudioStream" uid="uid://bk3v66b67bqcv" path="res://assets/sounds/bullet_hits/zack_grunt.mp3" id="7_rcs5t"]
 [ext_resource type="AudioStream" uid="uid://dg7ti7txeni8y" path="res://assets/sounds/c_weapon.mp3" id="8_wkhdx"]
+[ext_resource type="AudioStream" uid="uid://ctj7u2vwjixoq" path="res://assets/sounds/misc_sounds/pckammo.mp3" id="11_gadkb"]
 [ext_resource type="Texture2D" uid="uid://dny12u2g176bk" path="res://assets/future-tds/light.png" id="11_rcs5t"]
+[ext_resource type="AudioStream" uid="uid://btxhhqrwdrq7b" path="res://assets/sounds/misc_sounds/pickhel.WAV" id="12_hnhur"]
+[ext_resource type="AudioStream" uid="uid://d2d7pjfpiqnlj" path="res://assets/sounds/misc_sounds/footstps.mp3" id="13_hnhur"]
+[ext_resource type="AudioStream" uid="uid://dxmu7iuyebays" path="res://assets/sounds/zack_panting.mp3" id="15_d3jgg"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wmleu"]
 radius = 14.1421
@@ -178,12 +182,6 @@ _data = {
 [sub_resource type="CircleShape2D" id="CircleShape2D_wkhdx"]
 radius = 9.03635
 
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jp4wp"]
-polygon = PackedVector2Array(-24, -1, 191, -108, -25, -107)
-
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_gadkb"]
-polygon = PackedVector2Array(-24, -2, 191, 108, -19, 107)
-
 [node name="Zack" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 7
 script = ExtResource("1_igtd3")
@@ -196,23 +194,15 @@ texture = ExtResource("2_3dnrk")
 hframes = 6
 
 [node name="SpawnPoint" type="Node2D" parent="Sprite2D"]
-position = Vector2(34, 2.5)
+position = Vector2(34, 4.5)
 scale = Vector2(2, 2)
 
 [node name="SpawnPoint2" type="Node2D" parent="Sprite2D"]
-position = Vector2(28, -5.6)
+position = Vector2(34, -5.6)
 scale = Vector2(2, 2)
 
 [node name="SpawnPoint3" type="Node2D" parent="Sprite2D"]
-position = Vector2(30, 12.4)
-scale = Vector2(2, 2)
-
-[node name="SpawnPoint4" type="Node2D" parent="Sprite2D"]
-position = Vector2(24, 20.4)
-scale = Vector2(2, 2)
-
-[node name="SpawnPoint5" type="Node2D" parent="Sprite2D"]
-position = Vector2(22, -13.6)
+position = Vector2(34, 16.4)
 scale = Vector2(2, 2)
 
 [node name="gunz" type="Sprite2D" parent="."]
@@ -292,12 +282,26 @@ points = PackedVector2Array(0, 0, 100, 0)
 width = 5.0
 default_color = Color(0, 0, 0, 1)
 
+[node name="Line2D2" type="Line2D" parent="HUD"]
+position = Vector2(40, 70)
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 100, 0)
+width = 5.0
+default_color = Color(0, 0, 0, 1)
+
 [node name="Health" type="Line2D" parent="HUD"]
 position = Vector2(40, 50)
 scale = Vector2(2, 2)
 points = PackedVector2Array(0, 0, 100, 0)
 width = 5.0
 default_color = Color(0.729412, 0.0666667, 0.0784314, 1)
+
+[node name="Stamina" type="Line2D" parent="HUD"]
+position = Vector2(40, 70)
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 100, 0)
+width = 5.0
+default_color = Color(0.556863, 0.498039, 0.0235294, 1)
 
 [node name="atked" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_3dnrk")
@@ -318,18 +322,25 @@ stream = ExtResource("5_5mvwr")
 [node name="c_weapon" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_wkhdx")
 
+[node name="pck_ammo" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_gadkb")
+
+[node name="heal_sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_hnhur")
+
+[node name="ftsteps_default" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_hnhur")
+
 [node name="PointLight2D" type="PointLight2D" parent="."]
-position = Vector2(71.75, -0.249997)
-scale = Vector2(2.83594, 3.24219)
-energy = 0.11
+visible = false
+position = Vector2(0.99999, -0.499996)
+scale = Vector2(2.54969, 1.41867)
+energy = 0.3
 shadow_enabled = true
 texture = ExtResource("11_rcs5t")
 texture_scale = 2.39
 
-[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
-position = Vector2(-2, 0)
-occluder = SubResource("OccluderPolygon2D_jp4wp")
-
-[node name="LightOccluder2D2" type="LightOccluder2D" parent="."]
-position = Vector2(-2, 1)
-occluder = SubResource("OccluderPolygon2D_gadkb")
+[node name="Zack_panting" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("15_d3jgg")
+volume_db = -5.0
+parameters/looping = true
