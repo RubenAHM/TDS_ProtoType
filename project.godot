@@ -19,6 +19,11 @@ config/icon="res://icon.svg"
 
 Global="*res://scripts/Global.gd"
 EnemySignals="*res://scripts/EnemySignals.gd"
+MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_mcp_toolkit/plugin.cfg")
 
 [global_group]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=4 uid="uid://cn1s8l51q5mxg"]
+[gd_scene load_steps=35 format=4 uid="uid://cn1s8l51q5mxg"]
 
 [ext_resource type="Texture2D" uid="uid://betei7hosywm7" path="res://assets/environment/new miscs and chars/Background/road dirt.png" id="1_13hs1"]
 [ext_resource type="Texture2D" uid="uid://df8ansadmxvjr" path="res://assets/wo_assets/trees road walls other.jpg" id="1_88ety"]
@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" uid="uid://b1xhxnj0w6mf1" path="res://scenes/ammo_12_gauge.tscn" id="13_kpk0m"]
 [ext_resource type="PackedScene" uid="uid://fnfyeldn06ph" path="res://scenes/dmged_car.tscn" id="15_13hs1"]
 [ext_resource type="PackedScene" uid="uid://dn88fxmnun17j" path="res://scenes/zombie.tscn" id="16_bakr3"]
-[ext_resource type="PackedScene" uid="uid://d0qc4b3gl736e" path="res://scenes/soldier_1.tscn" id="16_fptmo"]
 [ext_resource type="PackedScene" uid="uid://daleo7rdncfew" path="res://scenes/hgunner.tscn" id="17_bakr3"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_47x4r"]
@@ -6998,7 +6997,7 @@ position = Vector2(809, 2)
 texture = ExtResource("7_kpk0m")
 
 [node name="Zack" parent="." instance=ExtResource("8_ahbqi")]
-position = Vector2(-128, 54)
+position = Vector2(-76, 46)
 
 [node name="Healing" parent="." instance=ExtResource("10_4asn1")]
 position = Vector2(67, -34)
@@ -7027,11 +7026,15 @@ position = Vector2(-53, -135)
 [node name="CanvasModulate" type="CanvasModulate" parent="."]
 color = Color(0.74978, 0.74978, 0.74978, 1)
 
-[node name="Soldier_1" parent="." instance=ExtResource("16_fptmo")]
-position = Vector2(374, -18)
+[node name="Zombie7" parent="." instance=ExtResource("16_bakr3")]
+position = Vector2(131, 35)
 
-[node name="Zombie" parent="." instance=ExtResource("16_bakr3")]
-position = Vector2(334, 30)
+[node name="Zombie9" parent="." instance=ExtResource("16_bakr3")]
+position = Vector2(180, -9)
+
+[node name="Zombie10" parent="." instance=ExtResource("16_bakr3")]
+position = Vector2(120, -13)
 
 [node name="Hgunner" parent="." instance=ExtResource("17_bakr3")]
-position = Vector2(252, 20)
+position = Vector2(152, 20)
+rotation = 2.51327

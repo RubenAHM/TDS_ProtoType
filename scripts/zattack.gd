@@ -1,65 +1,65 @@
-extends CharacterBody2D
-var SPEED = 0
-var direction = Vector2.RIGHT  # Variable para almacenar la dirección
-var parent
-var sprite
-var colision
-var hitbox
+extends Area2D
+
+# Daño que inflige el ataque
+const DAMAGE_PLAYER = 5
+const DAMAGE_SOLDIER = 30
+const DAMAGE_TANK = 15  # La mitad para tanques
+
+# Tiempo de vida del ataque si no golpea nada
+const LIFE_TIME = 0.3
+
+# Dirección del ataque (para orientar el sprite y el collider)
+var direction = Vector2.RIGHT
 var spawn_position: Vector2
-var cooldown = 0.2
-#@onready var melee = $atked
+
+@onready var audio_player = $atked
+@onready var sprite = $Sprite2D
 
 func _ready() -> void:
-	#print("atacado")
 	spawn_position = global_position
-	sprite = get_node("Sprite2D")
-	colision = get_node("CollisionShape2D")
-	hitbox = get_node("HitBoxArea/CollisionShape2D")
 	
-	#melee.play()
-
-
-func _physics_process(delta: float) -> void:
-	velocity = direction * SPEED
-	var collision = move_and_collide(velocity * delta)
+	# Configurar capas de colisión: capa 1 (jugador) y capa 7 (soldados/enemigos)
+	#collision_layer = 1 | 2 | 3 | 4 | 5 | 6 | 7 
+	#collision_mask = 1 | 2 | 3 | 4 | 5 | 6 | 7  # Detecta jugador y soldados (hgunner, soldier_1, tank, sniper)
 	
+	# Asegurar que el Area2D esté monitoreando
+	monitoring = true
+	monitorable = true
 	
+	# Reproducir sonido de ataque al iniciar (como bullet)
+	if audio_player:
+		audio_player.play()
 	
-	if collision:
-		var collider = collision.get_collider()
-		if collider:
-			if collider.is_in_group("Player"):
-				#print("funciona")
-				#meti a todos los enemigos en el grupo enemy para detectar cuando la bala colisione con uno de ellos
-				if collider.has_method("take_dmg_melee"):
-					collider.take_dmg_ranged(5)
-				destroy_bullet()
-				#queue_free()
-				#collider.queue_free()
-				#hitbox es una variable bool que le permite al juego determinar si debe morir el enemigo o no, accedo a ella mediante el collider ya que hitbox se encuentra en los scripts de enemigos
-			elif collider.is_in_group("Soldier"):
-				#print("funciona")
-				#meti a todos los enemigos en el grupo enemy para detectar cuando la bala colisione con uno de ellos
-				if collider.has_method("take_damage_z"):
-					var dmg_to_s = 30
-					collider.hitbox = true
-					if collider.is_in_group("Tanks"):
-						collider.take_damage(dmg_to_s/2)
-					else:
-						collider.take_damage(dmg_to_s)
-				destroy_bullet()
-			else:
-				#queue_free()
-				destroy_bullet()
-	else:
-		await get_tree().create_timer(cooldown).timeout
+	# Conectar la señal de detección del propio Area2D
+	body_entered.connect(_on_body_entered)
+	
+	# Si no golpea nada en LIFE_TIME, autodestruirse
+	get_tree().create_timer(LIFE_TIME).timeout.connect(func():
 		queue_free()
-	
+	)
 
-func destroy_bullet():
-	sprite.hide()
-	if is_instance_valid(colision):
-		colision.queue_free()
-	if is_instance_valid(hitbox):
-		hitbox.queue_free()
-	queue_free()
+func _on_body_entered(body: Node2D) -> void:
+	# Jugador (como bullet detecta grupo "Enemy", aquí detectamos "Player")
+	if body.is_in_group("Player"):
+		if body.has_method("take_dmg_ranged"):
+			body.take_dmg_ranged(DAMAGE_PLAYER)
+		queue_free()
+		return
+
+	# Soldados (incluyendo tanques)
+	if body.is_in_group("Soldier"):
+		if body.has_method("take_damage_z"):
+			body.hitbox = true
+			if body.is_in_group("Tanks"):
+				body.take_damage(DAMAGE_TANK)
+			else:
+				body.take_damage(DAMAGE_SOLDIER)
+		queue_free()
+		return
+
+	# Zombies (daño entre zombies, si aplica)
+	if body.is_in_group("Enemyz"):
+		if body.has_method("take_damage_z"):
+			body.take_damage_z(DAMAGE_SOLDIER)
+		queue_free()
+		return

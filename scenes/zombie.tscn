@@ -1,7 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://dn88fxmnun17j"]
+[gd_scene load_steps=11 format=3 uid="uid://dn88fxmnun17j"]
 
 [ext_resource type="Script" uid="uid://rk60i2ddy38x" path="res://scripts/zombie.gd" id="1_httt1"]
-[ext_resource type="Texture2D" uid="uid://kuw5b63ikj0q" path="res://assets/zombiebasic-1.png (1).png" id="2_xepks"]
+[ext_resource type="Texture2D" uid="uid://b7q183rc4osqr" path="res://assets/skeleton-move_0.png" id="2_xepks"]
 [ext_resource type="Script" uid="uid://cnc74avadxgbd" path="res://scripts/area_2d.gd" id="3_xepks"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_4gx57"]
@@ -18,6 +18,43 @@ height = 16.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_ycv6i"]
 radius = 10.0499
 
+[sub_resource type="Animation" id="Animation_xepks"]
+resource_name = "Z_Stand"
+length = 1.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0666667, 0.133333, 0.233333, 0.333333, 0.433333, 0.533333, 0.633333, 0.733333, 0.8, 0.866667, 0.933333, 1, 1.06667, 1.13333, 1.2, 1.26667, 1.33333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+}
+
+[sub_resource type="Animation" id="Animation_4gx57"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_4gx57"]
+_data = {
+&"RESET": SubResource("Animation_4gx57"),
+&"Z_Stand": SubResource("Animation_xepks")
+}
+
 [node name="Zombie" type="CharacterBody2D" groups=["Enemy", "Enemyz"]]
 collision_layer = 6
 collision_mask = 6
@@ -28,16 +65,14 @@ angle = 80.0
 length = 200.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(12, 0)
-rotation = 1.5708
-scale = Vector2(0.3, 0.3)
+position = Vector2(1.5, 0)
+scale = Vector2(0.1, 0.1)
 texture = ExtResource("2_xepks")
-hframes = 5
-vframes = 2
-frame = 1
+hframes = 4
+vframes = 5
 
 [node name="Spawn_bullet" type="Node2D" parent="Sprite2D"]
-position = Vector2(2, -25)
+position = Vector2(170, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 light_mask = 2
@@ -98,6 +133,11 @@ wait_time = 0.3
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 0.5
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_4gx57")
+}
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
 [connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]

@@ -4,39 +4,35 @@
 [ext_resource type="Script" uid="uid://didd0y0rpdxlv" path="res://scripts/zattack.gd" id="1_mfwpn"]
 [ext_resource type="AudioStream" uid="uid://d0la5jo3lbotr" path="res://assets/sounds/blade-piercing-body-352462.mp3" id="3_8wnp2"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mfwpn"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8wnp2"]
 height = 52.0
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_8wnp2"]
-radius = 12.0
-height = 96.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_nyolp"]
+height = 52.0
 
-[node name="zattack" type="CharacterBody2D"]
+[node name="zattack" type="Area2D"]
 scale = Vector2(0.15, 0.15)
-collision_layer = 9
-collision_mask = 9
+collision_layer = 127
+collision_mask = 127
 script = ExtResource("1_mfwpn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-1, 6)
-shape = SubResource("CapsuleShape2D_mfwpn")
+shape = SubResource("CapsuleShape2D_8wnp2")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(14.5, -66)
-scale = Vector2(1.06452, 1)
+position = Vector2(-5, 0)
+scale = Vector2(0.934783, 0.648148)
 texture = ExtResource("1_dsugj")
-hframes = 4
-frame = 3
-
-[node name="HitBoxArea" type="Area2D" parent="."]
-collision_layer = 9
-collision_mask = 9
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
-position = Vector2(-1, 0)
-shape = SubResource("CapsuleShape2D_8wnp2")
+hframes = 8
+vframes = 2
+frame = 14
 
 [node name="atked" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_8wnp2")
 
-[connection signal="finished" from="atked" to="." method="_on_atked_finished"]
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 127
+collision_mask = 127
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+shape = SubResource("CapsuleShape2D_nyolp")
