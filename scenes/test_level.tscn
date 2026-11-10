@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=4 uid="uid://cn1s8l51q5mxg"]
+[gd_scene load_steps=34 format=4 uid="uid://cn1s8l51q5mxg"]
 
 [ext_resource type="Texture2D" uid="uid://betei7hosywm7" path="res://assets/environment/new miscs and chars/Background/road dirt.png" id="1_13hs1"]
 [ext_resource type="Texture2D" uid="uid://df8ansadmxvjr" path="res://assets/wo_assets/trees road walls other.jpg" id="1_88ety"]
@@ -15,7 +15,6 @@
 [ext_resource type="PackedScene" uid="uid://b1xhxnj0w6mf1" path="res://scenes/ammo_12_gauge.tscn" id="13_kpk0m"]
 [ext_resource type="PackedScene" uid="uid://fnfyeldn06ph" path="res://scenes/dmged_car.tscn" id="15_13hs1"]
 [ext_resource type="PackedScene" uid="uid://dn88fxmnun17j" path="res://scenes/zombie.tscn" id="16_bakr3"]
-[ext_resource type="PackedScene" uid="uid://daleo7rdncfew" path="res://scenes/hgunner.tscn" id="17_bakr3"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_47x4r"]
 vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
@@ -7034,7 +7033,3 @@ position = Vector2(180, -9)
 
 [node name="Zombie10" parent="." instance=ExtResource("16_bakr3")]
 position = Vector2(120, -13)
-
-[node name="Hgunner" parent="." instance=ExtResource("17_bakr3")]
-position = Vector2(152, 20)
-rotation = 2.51327

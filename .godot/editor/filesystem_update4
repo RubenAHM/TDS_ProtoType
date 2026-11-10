@@ -1,5 +1,3 @@
-res://scripts/tank.gd
-res://scripts/sniper.gd
 res://scenes/test_level.tscn
 res://scenes/zack.tscn
 res://scenes/zombie.tscn
@@ -13,7 +11,4 @@ res://scenes/sniper.tscn
 res://scenes/tank.tscn
 res://scenes/dmged_car.tscn
 res://scenes/scout.tscn
-res://scripts/zombie.gd
-res://scripts/zattack.gd
-res://scenes/zattack_new.tscn
-res://scripts/hgunner.gd
+res://scripts/healing.gd
