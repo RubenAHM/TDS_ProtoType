@@ -16,8 +16,12 @@ var mag = 0
 var total = 0
 var current_weapon = 1
 var life = 100
+var armor = 0
 var dmg_soldier1 = 5
 var dmg_soldier2 = 20
 
 # NUEVA SEÑAL para la curación
 signal health_picked_up(heal_amount: int)
+
+# NUEVA SEÑAL para el chaleco antibalas
+signal armor_picked_up(armor_amount: int)

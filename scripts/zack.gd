@@ -45,6 +45,8 @@ var current_step_interval = 0.45
 
 # Variable para controlar si está disparando (para mostrar animación de apuntar)
 var is_shooting_animation = false
+# Variable para controlar si está disparando (para bloquear correr mientras dispara)
+var is_shooting: bool = false
 
 
 @onready var Zack_panting = $Zack_panting
@@ -55,11 +57,17 @@ const MIN_PANT_STAMINA = 50.0  # Stamina mínima para empezar a jadear
 
 func _ready() -> void:
 	$HUD/Health.points[1].x = Global.life
+	$HUD/Armor.points[1].x = Global.armor
 	Global.health_picked_up.connect(_on_health_picked_up)
+	Global.armor_picked_up.connect(_on_armor_picked_up)
 	sync_weapon_data()
 	update_hud()
 
 func _on_health_picked_up(heal_amount: int):
+	if heal_sound:
+		heal_sound.play()
+
+func _on_armor_picked_up(armor_amount: int):
 	if heal_sound:
 		heal_sound.play()
 
@@ -81,12 +89,34 @@ func add_gauge_ammo(amount):
 func die():
 	get_tree().quit()
 
-func take_dmg():
-	if not dead:
-		$HUD/Health.points[1].x -= dmg_tkn
-		if $HUD/Health.points[1].x <= 0:
+func apply_damage(amount: float):
+	if dead:
+		return
+
+	var armor_bar = $HUD/Armor
+	var health_bar = $HUD/Health
+
+	# Primero descontar de Armor si tiene
+	var armor = armor_bar.points[1].x
+	if armor > 0:
+		var armor_damage = min(amount, armor)
+		armor -= armor_damage
+		amount -= armor_damage
+		armor_bar.points[1].x = armor
+
+	# Luego descontar el resto de Health
+	if amount > 0:
+		var health = health_bar.points[1].x
+		health -= amount
+		health_bar.points[1].x = health
+
+		if health_bar.points[1].x <= 0:
 			dead = true
 			die()
+
+func take_dmg():
+	if not dead:
+		apply_damage(dmg_tkn)
 		$Invul.start()
 		await $Invul.timeout
 		if !invul:
@@ -94,21 +124,15 @@ func take_dmg():
 
 func take_dmg_ranged(amount):
 	if not dead:
-		$HUD/Health.points[1].x -= amount
+		apply_damage(amount)
 		if randi_range(0, 8) == 2: grunt.play()
 		player2.play()
-		if $HUD/Health.points[1].x <= 0:
-			dead = true
-			die()
 
 func take_dmg_melee(amount):
 	if not dead:
-		$HUD/Health.points[1].x -= amount
+		apply_damage(amount)
 		if randi_range(0, 8) == 2: grunt.play()
 		player.play()
-		if $HUD/Health.points[1].x <= 0:
-			dead = true
-			die()
 
 func _physics_process(delta: float) -> void:
 	handle_weapon_selection()
@@ -127,10 +151,8 @@ func _physics_process(delta: float) -> void:
 	
 	if input_vector.length() > 0:
 		is_moving = true
-		if Input.is_action_pressed("Run") and $HUD/Stamina.points[1].x > 1 :
+		if Input.is_action_pressed("Run") and $HUD/Stamina.points[1].x > 1 and not is_shooting:
 			$HUD/Stamina.points[1].x -= 0.3
-			if Input.is_action_pressed("Shoot"):
-				return
 			canShoot = false
 			# Aplicamos la velocidad de correr (el vector ya está normalizado)
 			input_vector = input_vector * (SPEED * 2)
@@ -358,6 +380,7 @@ func set_current_total_ammo(val):
 func shootSequence():
 	var current_mag = get_current_mag()
 	if Input.is_action_pressed("Shoot") and current_mag > 0 and not reloading:
+		is_shooting = true
 		set_current_mag(current_mag - 1)
 		shoot()
 		update_hud()
@@ -379,6 +402,7 @@ func shootSequence():
 		$Timer.start()
 		await $Timer.timeout
 		canShoot = true
+		is_shooting = false
 		is_shooting_animation = false  # Terminó de disparar, volver a animación normal
 
 func look_at_mouse():

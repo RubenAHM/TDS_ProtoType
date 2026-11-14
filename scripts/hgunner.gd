@@ -265,6 +265,7 @@ func investigate_behavior():
 
 func combat_behavior():
 	if current_has_target and current_target != null:
+		canShoot = true  # Resetear para poder disparar al recuperar el objetivo
 		search_time_remaining = 8.0
 		memory = true
 		var global_next_pos = nav.get_next_path_position()

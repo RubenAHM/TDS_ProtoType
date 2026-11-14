@@ -1,5 +1,12 @@
-res://scenes/test_level.tscn
+res://scripts/soldier_1.gd
+res://scripts/tank.gd
+res://scripts/sniper.gd
+res://scripts/armor.gd
+res://scripts/Global.gd
+res://scripts/zack.gd
 res://scenes/zack.tscn
+res://scenes/test_level.tscn
+res://scenes/blltprf_vest.tscn
 res://scenes/zombie.tscn
 res://scenes/healing.tscn
 res://scenes/soldier_1.tscn
@@ -9,6 +16,4 @@ res://scenes/zattack.tscn
 res://scenes/hgunner.tscn
 res://scenes/sniper.tscn
 res://scenes/tank.tscn
-res://scenes/dmged_car.tscn
-res://scenes/scout.tscn
-res://scripts/healing.gd
+res://scripts/hgunner.gd

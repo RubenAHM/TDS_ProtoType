@@ -296,6 +296,13 @@ points = PackedVector2Array(0, 0, 100, 0)
 width = 5.0
 default_color = Color(0.729412, 0.0666667, 0.0784314, 1)
 
+[node name="Armor" type="Line2D" parent="HUD"]
+position = Vector2(40, 50)
+scale = Vector2(2, 2)
+points = PackedVector2Array(0, 0, 100, 0)
+width = 5.0
+default_color = Color(0.6, 0.666667, 0.733333, 1)
+
 [node name="Stamina" type="Line2D" parent="HUD"]
 position = Vector2(40, 70)
 scale = Vector2(2, 2)
