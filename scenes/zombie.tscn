@@ -1,8 +1,9 @@
-[gd_scene load_steps=11 format=3 uid="uid://dn88fxmnun17j"]
+[gd_scene load_steps=12 format=3 uid="uid://dn88fxmnun17j"]
 
 [ext_resource type="Script" uid="uid://rk60i2ddy38x" path="res://scripts/zombie.gd" id="1_httt1"]
 [ext_resource type="Texture2D" uid="uid://b7q183rc4osqr" path="res://assets/skeleton-move_0.png" id="2_xepks"]
 [ext_resource type="Script" uid="uid://cnc74avadxgbd" path="res://scripts/area_2d.gd" id="3_xepks"]
+[ext_resource type="PackedScene" uid="uid://dmimmf1ctsfcj" path="res://scenes/flame_effect.tscn" id="4_4gx57"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_4gx57"]
 radius = 5.09902
@@ -138,6 +139,10 @@ wait_time = 0.5
 libraries = {
 &"": SubResource("AnimationLibrary_4gx57")
 }
+
+[node name="FlameEffect" parent="." instance=ExtResource("4_4gx57")]
+visible = false
+position = Vector2(-7, -3)
 
 [connection signal="body_entered" from="Area2D" to="Area2D" method="_on_body_entered"]
 [connection signal="body_exited" from="Area2D" to="Area2D" method="_on_body_exited"]

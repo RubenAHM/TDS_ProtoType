@@ -79,6 +79,9 @@ var zombie_threat_timer: float = 0.0
 const ZOMBIE_THREAT_TIME = 2.0  # Segundos que un zombie se considera amenaza tras detectarlo cerca
 const ZOMBIE_THREAT_DISTANCE = 100.0  # Distancia máxima para considerar zombie como amenaza inmediata
 
+# Última posición conocida de un zombie que nos atacó (para buscarlo si no lo vemos)
+var last_zombie_attacker_pos: Vector2 = Vector2.ZERO
+
 func _ready():
 	# Guardar posición inicial
 	initial_position = global_position
@@ -91,8 +94,8 @@ func _ready():
 
 # --- SEÑALES ---
 func _on_zombie_detected(zombie_pos: Vector2, detector_z_pos: Vector2, alert_radius_z: float):
-	# Ignorar si ya estamos en combate
-	if current_target != null:
+	# Si nos está atacando un zombie, priorizamos la alerta aunque ya tengamos target
+	if current_target != null and zombie_threat_timer <= 0:
 		return
 
 	# Calcular distancia al detector
@@ -245,6 +248,17 @@ func _physics_process(delta: float) -> void:
 				current_state = State.COMBAT_ZOMBIE
 
 	if hitbox: hitbox = false
+
+	# Prioridad: si nos está atacando un zombie y no lo estamos persiguiendo, buscarlo
+	if zombie_threat_timer > 0 and last_zombie_attacker_pos != Vector2.ZERO:
+		if current_target == null or not is_instance_valid(current_target) or current_target_type != TargetType.ZOMBIE:
+			current_target = null
+			current_target_type = TargetType.ZOMBIE
+			last_heard_position = last_zombie_attacker_pos
+			current_state = State.INVESTIGATING
+			investigating = true
+			investigation_timer = INVESTIGATION_TIME
+			nav_update_timer = 0.0
 
 	# Ejecutar el comportamiento según el estado actual
 	match current_state:
@@ -405,11 +419,14 @@ func take_damage(amount):
 	life -= amount
 	atked.play()
 
-func take_damage_z(amount):
+func take_damage_z(amount, attacker_pos: Vector2 = Vector2.ZERO):
 	life -= amount
 	atked2.play()
 	# El zombie que nos atacó es una amenaza inmediata
 	zombie_threat_timer = ZOMBIE_THREAT_TIME
+	# Recordar la posición del atacante para poder buscarlo si se pierde de vista
+	if attacker_pos != Vector2.ZERO:
+		last_zombie_attacker_pos = attacker_pos
 
 func check_player_collision():
 	if current_target == null:

@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://daleo7rdncfew"]
+[gd_scene load_steps=8 format=3 uid="uid://daleo7rdncfew"]
 
 [ext_resource type="Script" uid="uid://8m2s77akjjaa" path="res://scripts/hgunner.gd" id="1_xo0qu"]
 [ext_resource type="Texture2D" uid="uid://cby0aqthsneym" path="res://assets/rifle/idle/survivor-idle_rifle_0.png" id="2_1ytah"]
 [ext_resource type="AudioStream" uid="uid://dvef6x6f511p6" path="res://assets/sounds/bullet_hits/bulltet_hit_enemy.mp3" id="3_hy4nv"]
 [ext_resource type="AudioStream" uid="uid://btgo8ejo7yb2j" path="res://assets/sounds/bullet_hits/enmz_attckd.mp3" id="4_f45is"]
+[ext_resource type="PackedScene" uid="uid://dmimmf1ctsfcj" path="res://scenes/flame_effect.tscn" id="5_f45is"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hy4nv"]
 radius = 8.0
@@ -61,6 +62,10 @@ stream = ExtResource("3_hy4nv")
 
 [node name="atked2" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_f45is")
+
+[node name="FlameEffect" parent="." instance=ExtResource("5_f45is")]
+visible = false
+position = Vector2(-10, -3)
 
 [connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
 [connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]

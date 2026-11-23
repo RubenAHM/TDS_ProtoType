@@ -55,10 +55,10 @@ func _physics_process(delta: float) -> void:
 			elif collider.is_in_group("Enemyz"):
 				#print("funciona")
 				#meti a todos los enemigos en el grupo enemy para detectar cuando la bala colisione con uno de ellos
-				if collider.has_method("take_damage"):
+				if collider.has_method("take_damage_s"):
 					var dmg_to_z = damage * 8
 					collider.hitbox = true
-					collider.take_damage(dmg_to_z)
+					collider.take_damage_s(dmg_to_z)
 				destroy_bullet()
 			else:
 				#queue_free()

@@ -1,29 +1,26 @@
 extends Area2D
 
+const MAX_LIFE = 100
+
+@onready var player = get_tree().get_first_node_in_group("Player")
+@onready var life_bar = player.get_node("HUD/Health") if player != null else null
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.is_in_group("Player"):
-		var player_scene = get_tree().get_nodes_in_group("Player")[0]
-		if player_scene:
-			var healed_amount = 0
-			if player_scene.get_node("HUD/Health").points[1].x <= 60:
-				player_scene.get_node("HUD/Health").points[1].x +=40
-				healed_amount = 40
-				#queue_free()
-			elif player_scene.get_node("HUD/Health").points[1].x == 90:
-				player_scene.get_node("HUD/Health").points[1].x +=10
-				healed_amount = 10
-				#queue_free()
-			elif player_scene.get_node("HUD/Health").points[1].x == 95:
-				player_scene.get_node("HUD/Health").points[1].x +=5
-				healed_amount = 5
-				#queue_free()
-			else:
-				player_scene.get_node("HUD/Health").points[1].x +=0
-				healed_amount = 0
-			if healed_amount > 0:
-				Global.health_picked_up.emit(healed_amount)
-				queue_free()
-				var parent = get_parent()
-				if parent:
-					parent.queue_free()
+	if not body.is_in_group("Player"):
+		return
+	
+	if life_bar == null:
+		return
+
+	var current_life = life_bar.points[1].x
+	if current_life >= MAX_LIFE:
+		return  
+
+	var amount_to_add = MAX_LIFE - current_life
+	life_bar.points[1].x = MAX_LIFE
+
+	Global.health_picked_up.emit(amount_to_add)
+	queue_free()
+	var parent = get_parent()
+	if parent:
+		parent.queue_free()
