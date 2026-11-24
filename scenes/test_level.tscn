@@ -16,7 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://fnfyeldn06ph" path="res://scenes/dmged_car.tscn" id="15_13hs1"]
 [ext_resource type="PackedScene" uid="uid://b4yv7lqaqga3g" path="res://scenes/blltprf_vest.tscn" id="15_fptmo"]
 [ext_resource type="PackedScene" uid="uid://otwmd5k0m4wn" path="res://scenes/flamethrower_ammo.tscn" id="16_fptmo"]
-[ext_resource type="PackedScene" uid="uid://dn88fxmnun17j" path="res://scenes/zombie.tscn" id="19_ni2ok"]
+[ext_resource type="PackedScene" uid="uid://cojpxa86ic83f" path="res://scenes/sniper.tscn" id="18_ni2ok"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_47x4r"]
 vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
@@ -7033,8 +7033,5 @@ position = Vector2(91, -33)
 [node name="Flamethrower_ammo" parent="." instance=ExtResource("16_fptmo")]
 position = Vector2(-102, -97)
 
-[node name="Zombie" parent="." instance=ExtResource("19_ni2ok")]
-position = Vector2(153, 21)
-
-[node name="Zombie3" parent="." instance=ExtResource("19_ni2ok")]
-position = Vector2(79, 1)
+[node name="Sniper" parent="." instance=ExtResource("18_ni2ok")]
+position = Vector2(150, -123)
