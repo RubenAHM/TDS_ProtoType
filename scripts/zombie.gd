@@ -4,6 +4,16 @@ extends CharacterBody2D
 @onready var nav = $NavigationAgent2D
 @onready var nav2 = $NavigationAgent2D2
 @onready var cooldown = $Cooldown
+@onready var flame_effect = $FlameEffect
+@onready var flame_anim = $FlameEffect/AnimationPlayer
+
+# --- SISTEMA DE DAÑO POR FUEGO ---
+const FIRE_DURATION = 5.0
+const FIRE_DAMAGE_PER_SECOND = 25
+const FIRE_TICK_INTERVAL = 1.0
+var fire_timer: float = 0.0
+var fire_damage_accumulator: float = 0.0
+var is_on_fire: bool = false
 var attack = preload("res://scenes/zattack.tscn")
 const SPEED = 60.0
 var hitbox = false
@@ -201,6 +211,23 @@ func _physics_process(delta: float) -> void:
 	if life <= 0:
 		queue_free()
 		return
+	
+	# --- SISTEMA DE DAÑO POR FUEGO ---
+	if is_on_fire:
+		fire_timer -= delta
+		fire_damage_accumulator += delta
+		
+		if fire_damage_accumulator >= FIRE_TICK_INTERVAL:
+			life -= FIRE_DAMAGE_PER_SECOND
+			fire_damage_accumulator = 0.0
+		
+		if fire_timer <= 0.0:
+			is_on_fire = false
+			if flame_effect:
+				flame_effect.visible = false
+			fire_timer = 0.0
+			fire_damage_accumulator = 0.0
+	# ---------------------------------
 
 	if alert_cooldown > 0: alert_cooldown -= delta
 	if investigation_timer > 0: investigation_timer -= delta
@@ -370,10 +397,20 @@ func patrol_behavior():
 func take_damage(amount):
 	life -= amount
 
-func take_damage_z(amount):
+func take_damage_s(amount):
 	life -= amount
 	# El soldado que nos atacó es una amenaza inmediata
 	soldier_threat_timer = SOLDIER_THREAT_TIME
+
+func take_damage_fire(amount):
+	life -= amount
+	if flame_effect:
+		flame_effect.visible = true
+	if flame_anim:
+		flame_anim.play("FIRE")
+	fire_timer = FIRE_DURATION
+	is_on_fire = true
+	fire_damage_accumulator = 0.0
 
 # --- DETECCIÓN DE ATAQUE (Restaurada y optimizada) ---
 func check_player_collision():

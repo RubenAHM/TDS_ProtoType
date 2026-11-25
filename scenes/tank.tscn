@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://vvn4dn2achhx"]
+[gd_scene load_steps=8 format=3 uid="uid://vvn4dn2achhx"]
 
 [ext_resource type="Script" uid="uid://osa633jwao6n" path="res://scripts/tank.gd" id="1_c4xvs"]
 [ext_resource type="Texture2D" uid="uid://cb7gxfjjhgr6l" path="res://assets/rifle/002__000.png" id="2_01nm4"]
 [ext_resource type="AudioStream" uid="uid://cx4u2rlrbh0e2" path="res://assets/sounds/bullet_hits/bullet_ametal.mp3" id="3_k4vtj"]
 [ext_resource type="AudioStream" uid="uid://ht03g3rauimc" path="res://assets/sounds/bullet_hits/bullet_ametal2.mp3" id="4_lj6hj"]
+[ext_resource type="PackedScene" uid="uid://dmimmf1ctsfcj" path="res://scenes/flame_effect.tscn" id="5_lj6hj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k4vtj"]
 size = Vector2(20, 15)
@@ -69,6 +70,15 @@ stream = ExtResource("3_k4vtj")
 
 [node name="atked2" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_lj6hj")
+
+[node name="FlameEffect" parent="." instance=ExtResource("5_lj6hj")]
+visible = false
+position = Vector2(-11, 1)
+
+[node name="FlameEffect2" parent="." instance=ExtResource("5_lj6hj")]
+visible = false
+position = Vector2(-2.38419e-07, -11)
+rotation = 0.532325
 
 [connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
 [connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]

@@ -1,4 +1,6 @@
 extends CharacterBody2D
+@onready var flame_effect = $FlameEffect
+@onready var flame_anim = $FlameEffect/AnimationPlayer
 @onready var target = get_tree().get_first_node_in_group("Player")
 @onready var nav = $NavigationAgent2D
 @onready var nav2 = $NavigationAgent2D2
@@ -74,6 +76,18 @@ var last_known_target_pos: Vector2
 var zombie_threat_timer: float = 0.0
 const ZOMBIE_THREAT_TIME = 2.0  # Segundos que un zombie se considera amenaza tras detectarlo cerca
 const ZOMBIE_THREAT_DISTANCE = 100.0  # Distancia máxima para considerar zombie como amenaza inmediata
+
+# --- SISTEMA DE DAÑO POR FUEGO ---
+const FIRE_DURATION = 5.0
+const FIRE_DAMAGE_PER_SECOND = 25
+const FIRE_TICK_INTERVAL = 1.0
+var fire_timer: float = 0.0
+var fire_damage_accumulator: float = 0.0
+var is_on_fire: bool = false
+const PANIC_SPEED_MULTIPLIER = 1.8
+const PANIC_DIR_INTERVAL = 0.2
+var panic_dir: Vector2 = Vector2.ZERO
+var panic_timer: float = 0.0
 
 func _ready():
 	# Guardar posición inicial
@@ -201,6 +215,20 @@ func reaction():
 		current_state = State.SEARCHING
 		hitbox = false
 
+func _pick_panic_direction() -> void:
+	var angle_offset = randf_range(-PI, PI)
+	panic_dir = Vector2.RIGHT.rotated(angle_offset).normalized()
+
+func panic_behavior(delta: float) -> void:
+	panic_timer -= delta
+	if panic_timer <= 0.0 or panic_dir == Vector2.ZERO:
+		_pick_panic_direction()
+		panic_timer = PANIC_DIR_INTERVAL
+
+	rotation = lerp_angle(rotation, panic_dir.angle(), 0.35)
+	velocity = panic_dir * (SPEED * PANIC_SPEED_MULTIPLIER)
+	move_and_slide()
+
 func _physics_process(delta: float) -> void:
 	if life <= 0:
 		queue_free()
@@ -209,6 +237,30 @@ func _physics_process(delta: float) -> void:
 	if alert_cooldown > 0: alert_cooldown -= delta
 	if investigation_timer > 0: investigation_timer -= delta
 	if zombie_threat_timer > 0: zombie_threat_timer -= delta
+	
+	# --- SISTEMA DE DAÑO POR FUEGO ---
+	if is_on_fire:
+		fire_timer -= delta
+		fire_damage_accumulator += delta
+
+		if fire_damage_accumulator >= FIRE_TICK_INTERVAL:
+			life -= FIRE_DAMAGE_PER_SECOND
+			fire_damage_accumulator = 0.0
+
+		if fire_timer <= 0.0:
+			is_on_fire = false
+			panic_dir = Vector2.ZERO
+			panic_timer = 0.0
+			canShoot = true
+			current_state = State.PATROLLING
+			if flame_effect:
+				flame_effect.visible = false
+			fire_timer = 0.0
+			fire_damage_accumulator = 0.0
+		else:
+			panic_behavior(delta)
+			return
+	# ---------------------------------
 
 	reaction()
 
@@ -406,6 +458,23 @@ func take_damage_z(amount):
 	atked2.play()
 	# El zombie que nos atacó es una amenaza inmediata
 	zombie_threat_timer = ZOMBIE_THREAT_TIME
+
+func take_damage_fire(amount):
+	life -= amount
+	current_target = null
+	current_target_type = TargetType.NONE
+	current_has_target = false
+	investigating = false
+	panic_timer = 0.0
+	if cooldown and not cooldown.is_stopped():
+		cooldown.stop()
+	if flame_effect:
+		flame_effect.visible = true
+	if flame_anim:
+		flame_anim.play("FIRE")
+	fire_timer = FIRE_DURATION
+	is_on_fire = true
+	fire_damage_accumulator = 0.0
 
 func check_player_collision():
 	if current_target == null:

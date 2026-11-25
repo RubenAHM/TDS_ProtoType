@@ -58,8 +58,8 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 
 	# Zombies (daño entre zombies, si aplica)
-	if body.is_in_group("Enemyz"):
+	"""if body.is_in_group("Enemyz"):
 		if body.has_method("take_damage_z"):
 			body.take_damage_z(DAMAGE_SOLDIER)
 		queue_free()
-		return
+		return"""

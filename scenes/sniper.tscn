@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://cojpxa86ic83f"]
+[gd_scene load_steps=8 format=3 uid="uid://cojpxa86ic83f"]
 
 [ext_resource type="Script" uid="uid://bups721yucglq" path="res://scripts/sniper.gd" id="1_wwo37"]
 [ext_resource type="Texture2D" uid="uid://q8v63o12swha" path="res://assets/post-apoc-tds/enemy_default.png" id="2_4cnfi"]
 [ext_resource type="AudioStream" uid="uid://dvef6x6f511p6" path="res://assets/sounds/bullet_hits/bulltet_hit_enemy.mp3" id="3_hjovk"]
 [ext_resource type="AudioStream" uid="uid://btgo8ejo7yb2j" path="res://assets/sounds/bullet_hits/enmz_attckd.mp3" id="4_ev654"]
+[ext_resource type="PackedScene" uid="uid://dmimmf1ctsfcj" path="res://scenes/flame_effect.tscn" id="5_ev654"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hjovk"]
 radius = 8.0
@@ -59,6 +60,10 @@ stream = ExtResource("3_hjovk")
 
 [node name="atked2" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_ev654")
+
+[node name="FlameEffect" parent="." instance=ExtResource("5_ev654")]
+visible = false
+position = Vector2(-10, -1)
 
 [connection signal="timeout" from="Cooldown" to="." method="_on_cooldown_timeout"]
 [connection signal="timeout" from="nv_timer" to="." method="_on_nv_timer_timeout"]

@@ -5,6 +5,8 @@ extends CharacterBody2D
 @onready var nav2 = $NavigationAgent2D2
 @onready var atked = $atked
 @onready var atked2 = $atked2
+@onready var flame_effect = $FlameEffect
+@onready var flame_anim = $FlameEffect/AnimationPlayer
 var bullet = preload("res://scenes/enemy_bullet.tscn")
 
 const SPEED = 65.0
@@ -76,6 +78,17 @@ var zombie_threat_timer: float = 0.0
 const ZOMBIE_THREAT_TIME = 2.0  # Segundos que un zombie se considera amenaza tras detectarlo cerca
 const ZOMBIE_THREAT_DISTANCE = 100.0  # Distancia máxima para considerar zombie como amenaza inmediata
 
+# Última posición conocida de un zombie que nos atacó (para buscarlo si no lo vemos)
+var last_zombie_attacker_pos: Vector2 = Vector2.ZERO
+
+# --- SISTEMA DE DAÑO POR FUEGO ---
+const FIRE_DURATION = 5.0
+const FIRE_DAMAGE_PER_SECOND = 25
+const FIRE_TICK_INTERVAL = 1.0
+var fire_timer: float = 0.0
+var fire_damage_accumulator: float = 0.0
+var is_on_fire: bool = false
+
 func _ready():
 	initial_position = global_position
 	half = deg_to_rad(angle / 2)
@@ -86,7 +99,9 @@ func _ready():
 
 # --- SEÑALES ---
 func _on_zombie_detected(zombie_pos: Vector2, detector_z_pos: Vector2, alert_radius_z: float):
-	if current_target != null: return
+	# Si nos está atacando un zombie, priorizamos la alerta aunque ya tengamos target
+	if current_target != null and zombie_threat_timer <= 0:
+		return
 	if global_position.distance_to(detector_z_pos) <= alert_radius_z:
 		trigger_investigation(zombie_pos)
 
@@ -201,6 +216,22 @@ func _physics_process(delta: float) -> void:
 	if alert_cooldown > 0: alert_cooldown -= delta
 	if investigation_timer > 0: investigation_timer -= delta
 	if zombie_threat_timer > 0: zombie_threat_timer -= delta
+	
+	# --- SISTEMA DE DAÑO POR FUEGO ---
+	if is_on_fire:
+		fire_timer -= delta
+		fire_damage_accumulator += delta
+		
+		if fire_damage_accumulator >= FIRE_TICK_INTERVAL:
+			life -= FIRE_DAMAGE_PER_SECOND
+			fire_damage_accumulator = 0.0
+		
+		if fire_timer <= 0.0:
+			is_on_fire = false
+			flame_effect.visible = false
+			fire_timer = 0.0
+			fire_damage_accumulator = 0.0
+	# ---------------------------------
 
 	reaction()
 
@@ -234,6 +265,17 @@ func _physics_process(delta: float) -> void:
 
 	if hitbox: hitbox = false
 
+	# Prioridad: si nos está atacando un zombie y no lo estamos persiguiendo, buscarlo
+	if zombie_threat_timer > 0 and last_zombie_attacker_pos != Vector2.ZERO:
+		if current_target == null or not is_instance_valid(current_target) or current_target_type != TargetType.ZOMBIE:
+			current_target = null
+			current_target_type = TargetType.ZOMBIE
+			last_heard_position = last_zombie_attacker_pos
+			current_state = State.INVESTIGATING
+			investigating = true
+			investigation_timer = INVESTIGATION_TIME
+			nav_update_timer = 0.0
+
 	# Ejecutar el comportamiento según el estado actual
 	match current_state:
 		State.INVESTIGATING: investigate_behavior()
@@ -263,16 +305,16 @@ func investigate_behavior():
 			investigating = false
 			current_state = State.PATROLLING
 
+var is_firing_sequence: bool = false
+
 func combat_behavior():
 	if current_has_target and current_target != null:
-		canShoot = true  # Resetear para poder disparar al recuperar el objetivo
 		search_time_remaining = 8.0
 		memory = true
 		var global_next_pos = nav.get_next_path_position()
 		var dir = (global_next_pos - global_position).normalized()
 		var dir_to_target = (current_target.global_position - global_position).normalized()
 		var dist = global_position.distance_to(current_target.global_position)
-
 		match current_state:
 			State.APPROACHING:
 				if dist <= COMBAT_DISTANCE: current_state = State.COMBAT
@@ -285,10 +327,10 @@ func combat_behavior():
 				if dist >= COMBAT_DISTANCE: current_state = State.COMBAT
 				else: velocity = -dir_to_target * SPEED * 1.4
 		move_and_slide()
-
-		# Disparar si puede
-		if cooldown.is_stopped() and canShoot:
-			cooldown.start() # Llama a _on_cooldown_timeout()
+		# Solo iniciar el cooldown si está libre, no está ya en ráfaga y puede disparar
+		if canShoot and not is_firing_sequence and cooldown.is_stopped():
+			cooldown.wait_time = randf_range(min_cooldown, max_cooldown)
+			cooldown.start()
 
 	else:
 		# LÓGICA DE MEMORIA (Cuando pierde de vista al jugador)
@@ -394,49 +436,58 @@ func take_damage(amount):
 	life -= amount
 	atked.play()
 
-func take_damage_z(amount):
+func take_damage_z(amount, attacker_pos: Vector2 = Vector2.ZERO):
 	life -= amount
 	atked2.play()
 	# El zombie que nos atacó es una amenaza inmediata
 	zombie_threat_timer = ZOMBIE_THREAT_TIME
+	# Recordar la posición del atacante para poder buscarlo si se pierde de vista
+	if attacker_pos != Vector2.ZERO:
+		last_zombie_attacker_pos = attacker_pos
+
+func take_damage_fire(amount):
+	life -= amount
+	flame_effect.visible = true
+	print(life)
+	flame_anim.play("FIRE")
+	fire_timer = FIRE_DURATION
+	is_on_fire = true
+	fire_damage_accumulator = 0.0
 
 func _on_cooldown_timeout() -> void:
-	if canShoot and current_has_target:
-		canShoot = false
-		bulletCount = 0
-		var random_cd = randf_range(min_cooldown, max_cooldown)
-		await get_tree().create_timer(random_cd).timeout
+	if not canShoot or is_firing_sequence or not current_has_target or current_target == null:
+		return
+	canShoot = false
+	is_firing_sequence = true
+	bulletCount = 0
+	
+	if current_target_type == TargetType.PLAYER:
+		await shootSequence()
+	elif current_target_type == TargetType.ZOMBIE:
+		await shootSequence_z()
+	
+	is_firing_sequence = false
+	canShoot = true
 
-		if current_target_type == TargetType.PLAYER: shootSequence()
-		elif current_target_type == TargetType.ZOMBIE: shootSequence_z()
-
-func shootSequence():
-	if bulletCount < max_Bullets and life > 0:
+func shootSequence() -> void:
+	while bulletCount < max_Bullets and life > 0 and current_has_target and current_target != null:
 		shoot()
 		bulletCount += 1
 		$Timer.start()
 		await $Timer.timeout
-		if current_has_target:
-			shootSequence()
-		else:
-			bulletCount = 0
-			canShoot = true
-	else:
-		$Timer.start()
-		await $Timer.timeout
-		canShoot = true
+	
+	# Pausa breve al cerrar la ráfaga antes de permitir el siguiente ciclo
+	$Timer.start()
+	await $Timer.timeout
 
-func shootSequence_z():
-	if bulletCount < max_Bullets and life > 0:
+func shootSequence_z() -> void:
+	while bulletCount < max_Bullets and life > 0 and current_has_target and is_instance_valid(current_target):
 		shoot()
 		bulletCount += 1
 		$Timer.start()
 		await $Timer.timeout
-		shootSequence_z()
-	else:
-		$Timer.start()
-		await $Timer.timeout
-		canShoot = true
+	$Timer.start()
+	await $Timer.timeout
 
 const SHOT_ALERT_RADIUS = 400.0
 func shoot():

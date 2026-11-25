@@ -1,0 +1,76 @@
+[gd_scene load_steps=8 format=3 uid="uid://dfqediaimf6rc"]
+
+[ext_resource type="Texture2D" uid="uid://t1jlebe5ipx6" path="res://assets/fire_blood_effcts/flame_effect.png" id="1_qa7u7"]
+[ext_resource type="Script" uid="uid://b3tqh43k4bbmy" path="res://scripts/flame_zack.gd" id="1_wkrrq"]
+[ext_resource type="AudioStream" uid="uid://d5emtaxcs0de" path="res://assets/sounds/flamethrower.mp3" id="2_wkrrq"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dpqvs"]
+radius = 7.0
+height = 52.0
+
+[sub_resource type="Animation" id="Animation_fg1ma"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_ywf15"]
+resource_name = "flames"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0333333, 0.133333, 0.233333, 0.366667, 0.466667, 0.6, 0.733333, 0.866667, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_vxmkp"]
+_data = {
+&"RESET": SubResource("Animation_fg1ma"),
+&"flames": SubResource("Animation_ywf15")
+}
+
+[node name="Flame_Zack" type="CharacterBody2D" groups=["Bullets"]]
+collision_layer = 6
+collision_mask = 6
+script = ExtResource("1_wkrrq")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-5, 5)
+rotation = 3.14159
+texture = ExtResource("1_qa7u7")
+hframes = 4
+vframes = 5
+
+[node name="HitBoxArea" type="Area2D" parent="."]
+collision_layer = 127
+collision_mask = 127
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBoxArea"]
+position = Vector2(8, 0)
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_dpqvs")
+
+[node name="flamethrower" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_wkrrq")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_vxmkp")
+}

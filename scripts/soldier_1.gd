@@ -5,8 +5,9 @@ extends CharacterBody2D
 @onready var nav2 = $NavigationAgent2D2
 @onready var atked = $atked
 @onready var atked2 = $atked2
+@onready var flame_effect = $FlameEffect
+@onready var flame_anim = $FlameEffect/AnimationPlayer
 var bullet = preload("res://scenes/enemy_bullet.tscn")
-
 const SPEED = 50.0
 const damage = 5
 const sound = 1
@@ -19,50 +20,40 @@ var min_cooldown = 0.3
 var max_cooldown = 1.2
 var memory = false
 var search_time_remaining: float = 0.0
-
 const COMBAT_DISTANCE = 140.0
 const STANDING_DISTANCE = 120.0
 const RETREAT_DISTANCE = 80.0
 const REACT_DISTANCE = 60
 const HEAR_DISTANCE = 250
-
 var last_heard_position: Vector2
 var investigating = false
 var investigation_timer: float = 0.0
 const INVESTIGATION_TIME = 3.0
-
 enum State {APPROACHING, COMBAT, RETREATING, INVESTIGATING, PATROLLING, COMBAT_ZOMBIE, SEARCHING, CHASE}
 enum TargetType {NONE, PLAYER, ZOMBIE}
 var current_target_type: TargetType = TargetType.PLAYER
 var current_target: Node2D = null
 var current_state = State.PATROLLING
-
 enum PatrolState {TURNING_RIGHT, TURNING_LEFT}
 var patrol_state: PatrolState = PatrolState.TURNING_RIGHT
-
 @onready var cooldown = $Cooldown
 # @onready var sight = $Sight # Ya no necesitamos el nodo RayCast2D, usaremos RayCasting interno (más rápido)
-
 @export var angle: float = 60.0 # Asegúrate de que tenga un valor por defecto
 @export var length: float = 200.0
 @export var direction = Vector2.RIGHT
 var half
-
 var initial_position: Vector2
 var patrol_timer: float = 0.0
 const PATROL_TIME = 10.0
 const PATROL_ROTATION_SPEED = 0.7
 var current_patrol_angle: float = 0.0
 const MAX_PATROL_ANGLE = deg_to_rad(120)
-
 const PATROL_HURT_TIME = 4.0
 const PATROL_HURT_ROTATION_SPEED = 3.0
 var current_hurt_rotation_angle: float = 0.0
 const MAX_HURT_PATROL_ANGLE = deg_to_rad(180)
-
 var alert_cooldown: float = 0.0
 const ALERT_COOLDOWN_TIME = 6.0
-
 # --- VARIABLES DE OPTIMIZACIÓN (Sacadas de tu alpha) ---
 var vision_timer: float = 0.0
 const VISION_CHECK_INTERVAL = 0.25 # Revisa 4 veces por segundo
@@ -70,23 +61,34 @@ var nav_update_timer: float = 0.0
 const NAV_UPDATE_INTERVAL = 0.3 # Actualiza la ruta de navegación 3 veces por segundo
 var current_has_target: bool = false
 var last_known_target_pos: Vector2
-
 # --- NUEVO: Sistema de amenaza zombie ---
 var zombie_threat_timer: float = 0.0
 const ZOMBIE_THREAT_TIME = 2.0  # Segundos que un zombie se considera amenaza tras detectarlo cerca
 const ZOMBIE_THREAT_DISTANCE = 100.0  # Distancia máxima para considerar zombie como amenaza inmediata
 
+# Última posición conocida de un zombie que nos atacó (para buscarlo si no lo vemos)
+var last_zombie_attacker_pos: Vector2 = Vector2.ZERO
+
+# --- SISTEMA DE DAÑO POR FUEGO ---
+const FIRE_DURATION = 5.0
+const FIRE_DAMAGE_PER_SECOND = 25
+const FIRE_TICK_INTERVAL = 1.0
+var fire_timer: float = 0.0
+var fire_damage_accumulator: float = 0.0
+var is_on_fire: bool = false
+
 func _ready():
 	initial_position = global_position
 	half = deg_to_rad(angle / 2)
-
 	target.shot_fired.connect(_on_player_shot_fired)
 	EnemySignals.player_detected.connect(_on_enemy_player_detected)
 	EnemySignals.zombie_detected.connect(_on_zombie_detected)
 
 # --- SEÑALES ---
 func _on_zombie_detected(zombie_pos: Vector2, detector_z_pos: Vector2, alert_radius_z: float):
-	if current_target != null: return
+	# Si nos está atacando un zombie, priorizamos la alerta aunque ya tengamos target
+	if current_target != null and zombie_threat_timer <= 0:
+		return
 	if global_position.distance_to(detector_z_pos) <= alert_radius_z:
 		trigger_investigation(zombie_pos)
 
@@ -115,6 +117,28 @@ func find_any_target() -> bool:
 	# --- PRIORIDAD 1: Zombies amenazantes (cerca o atacando recientemente) ---
 	var zombies = get_tree().get_nodes_in_group("Enemyz")
 	var nearby_zombie = null
+	
+	# Si estamos siendo atacados por un zombie y conocemos su última posición, priorizarlo aunque no lo veamos
+	if zombie_threat_timer > 0 and last_zombie_attacker_pos != Vector2.ZERO:
+		# Verificar si el zombie atacante aún existe en el grupo
+		for zombie in zombies:
+			if global_position.distance_to(zombie.global_position) < 25.0:  # Umbral para considerar que es el mismo zombie
+				nearby_zombie = zombie
+				break
+		if nearby_zombie != null:
+			current_target = nearby_zombie
+			current_target_type = TargetType.ZOMBIE
+			last_known_target_pos = nearby_zombie.global_position
+			last_zombie_attacker_pos = nearby_zombie.global_position  # Actualizar posición conocida
+			zombie_threat_timer = ZOMBIE_THREAT_TIME
+			if alert_cooldown <= 0:
+				EnemySignals.zombie_detected.emit(nearby_zombie.global_position, global_position, 600.0)
+				alert_cooldown = ALERT_COOLDOWN_TIME
+			return true
+		# El zombie ya no existe en el grupo, pero tenemos su última posición
+		# El soldado ya será dirigido a investigar por la lógica en _physics_process
+		return true  # Tenemos objetivo (última posición conocida del atacante)
+	
 	for zombie in zombies:
 		if is_node_visible(zombie):
 			var dist = global_position.distance_to(zombie.global_position)
@@ -122,7 +146,6 @@ func find_any_target() -> bool:
 			if dist <= ZOMBIE_THREAT_DISTANCE or zombie_threat_timer > 0:
 				nearby_zombie = zombie
 				break
-
 	if nearby_zombie != null:
 		current_target = nearby_zombie
 		current_target_type = TargetType.ZOMBIE
@@ -132,7 +155,6 @@ func find_any_target() -> bool:
 			EnemySignals.zombie_detected.emit(nearby_zombie.global_position, global_position, 600.0)
 			alert_cooldown = ALERT_COOLDOWN_TIME
 		return true
-
 	# --- PRIORIDAD 2: Jugador (solo si no hay zombie amenazante) ---
 	if is_node_visible(target):
 		current_target = target
@@ -142,7 +164,6 @@ func find_any_target() -> bool:
 			EnemySignals.player_detected.emit(target.global_position, global_position, 600.0)
 			alert_cooldown = ALERT_COOLDOWN_TIME
 		return true
-
 	# --- PRIORIDAD 3: Cualquier otro zombie en visión (sin amenaza inmediata) ---
 	for zombie in zombies:
 		if is_node_visible(zombie):
@@ -153,7 +174,6 @@ func find_any_target() -> bool:
 				EnemySignals.zombie_detected.emit(zombie.global_position, global_position, 600.0)
 				alert_cooldown = ALERT_COOLDOWN_TIME
 				return true
-
 	# --- Nada en visión ---
 	if current_target != null:
 		current_target = null
@@ -163,23 +183,19 @@ func find_any_target() -> bool:
 # Esta función reemplaza is_player_visible y is_zombie_visible
 func is_node_visible(node: Node2D) -> bool:
 	if node == null: return false
-
 	# 1. Filtro barato: Distancia (Evita raycasts innecesarios si está muy lejos)
 	var distance = global_position.distance_to(node.global_position)
 	if distance > length: return false
-
 	# 2. Filtro barato: Cono de visión
 	var node_local = to_local(node.global_position)
 	var angle_to_node = direction.angle_to(node_local)
 	if abs(angle_to_node) > half: return false
-
 	# 3. Filtro caro: Raycast físico (Solo se ejecuta si pasó los dos filtros anteriores)
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(global_position, node.global_position)
 	query.exclude = [self]
 	# Opcional: query.collision_mask = ... (Para que solo choque con paredes y cuerpos)
 	var result = space_state.intersect_ray(query)
-
 	return result and result.collider == node
 
 func reaction():
@@ -196,26 +212,38 @@ func _physics_process(delta: float) -> void:
 	if life <= 0:
 		queue_free()
 		return
-
 	if alert_cooldown > 0: alert_cooldown -= delta
 	if investigation_timer > 0: investigation_timer -= delta
 	if zombie_threat_timer > 0: zombie_threat_timer -= delta
-
+	
+	# --- SISTEMA DE DAÑO POR FUEGO ---
+	if is_on_fire:
+		fire_timer -= delta
+		fire_damage_accumulator += delta
+		
+		if fire_damage_accumulator >= FIRE_TICK_INTERVAL:
+			life -= FIRE_DAMAGE_PER_SECOND
+			fire_damage_accumulator = 0.0
+		
+		if fire_timer <= 0.0:
+			is_on_fire = false
+			flame_effect.visible = false
+			fire_timer = 0.0
+			fire_damage_accumulator = 0.0
+	# ---------------------------------
+	
 	reaction()
-
 	# --- THROTTLING DE VISIÓN ---
 	vision_timer -= delta
 	if vision_timer <= 0:
 		current_has_target = find_any_target()
 		# El randf_range evita "lag spikes" distribuyendo los raycasts de los enemigos en diferentes frames
 		vision_timer = VISION_CHECK_INTERVAL + randf_range(0.0, 0.05)
-
 	# --- THROTTLING DE NAVEGACIÓN ---
 	nav_update_timer -= delta
 	if nav_update_timer <= 0:
 		update_navigation_paths()
 		nav_update_timer = NAV_UPDATE_INTERVAL + randf_range(0.0, 0.05)
-
 	# --- LÓGICA DE ESTADOS ---
 	if investigating and current_state != State.INVESTIGATING and not current_has_target:
 		current_state = State.INVESTIGATING
@@ -223,16 +251,29 @@ func _physics_process(delta: float) -> void:
 		investigating = false
 		var target_angle = (current_target.global_position - global_position).angle()
 		rotation = lerp_angle(rotation, target_angle, 0.1)
-
 		if current_target_type == TargetType.PLAYER:
 			if current_state in [State.PATROLLING, State.INVESTIGATING, State.COMBAT_ZOMBIE, State.SEARCHING]:
 				current_state = State.APPROACHING
+				canShoot = true  # Habilitar disparo al reencontrar al jugador
 		elif current_target_type == TargetType.ZOMBIE:
 			if current_state in [State.PATROLLING, State.INVESTIGATING, State.APPROACHING]:
 				current_state = State.COMBAT_ZOMBIE
-
+	# Auto-investigar última posición conocida al perder el objetivo de vista
+	if not investigating and not current_has_target and last_known_target_pos != Vector2.ZERO:
+		trigger_investigation(last_known_target_pos)
+	
+	# Prioridad: si nos está atacando un zombie y no lo estamos persiguiendo, buscarlo
+	if zombie_threat_timer > 0 and last_zombie_attacker_pos != Vector2.ZERO:
+		if current_target == null or not is_instance_valid(current_target) or current_target_type != TargetType.ZOMBIE:
+			current_target = null
+			current_target_type = TargetType.ZOMBIE
+			last_heard_position = last_zombie_attacker_pos  # Usar last_heard_position para navegación
+			current_state = State.INVESTIGATING
+			investigating = true
+			investigation_timer = INVESTIGATION_TIME
+			nav_update_timer = 0.0
+	
 	if hitbox: hitbox = false
-
 	# Ejecutar el comportamiento según el estado actual
 	match current_state:
 		State.INVESTIGATING: investigate_behavior()
@@ -251,27 +292,29 @@ func update_navigation_paths():
 
 # --- COMPORTAMIENTOS ---
 func investigate_behavior():
-	var global_next_pos = nav.get_next_path_position()
-	var dir = (global_next_pos - global_position).normalized()
-	look_at(last_heard_position)
-	velocity = dir * SPEED
-	move_and_slide()
-
-	if global_position.distance_to(last_heard_position) < 30.0:
+	var dist_to_point = global_position.distance_to(last_heard_position)
+	
+	if dist_to_point >= 30.0:
+		var global_next_pos = nav.get_next_path_position()
+		var dir = (global_next_pos - global_position).normalized()
+		look_at(last_heard_position)
+		velocity = dir * SPEED
+		move_and_slide()
+	else:
+		velocity = Vector2.ZERO
 		if investigation_timer <= 0:
 			investigating = false
+			last_known_target_pos = Vector2.ZERO
 			current_state = State.PATROLLING
 
 func combat_behavior():
 	if current_has_target and current_target != null:
-		canShoot = true  # Resetear para poder disparar al recuperar el objetivo
 		search_time_remaining = 8.0
 		memory = true
 		var global_next_pos = nav.get_next_path_position()
 		var dir = (global_next_pos - global_position).normalized()
 		var dir_to_target = (current_target.global_position - global_position).normalized()
 		var dist = global_position.distance_to(current_target.global_position)
-
 		match current_state:
 			State.APPROACHING:
 				if dist <= COMBAT_DISTANCE: current_state = State.COMBAT
@@ -284,11 +327,9 @@ func combat_behavior():
 				if dist >= COMBAT_DISTANCE: current_state = State.COMBAT
 				else: velocity = -dir_to_target * SPEED * 1.4
 		move_and_slide()
-
 		# Disparar si puede
 		if cooldown.is_stopped() and canShoot:
 			cooldown.start() # Llama a _on_cooldown_timeout()
-
 	else:
 		# LÓGICA DE MEMORIA (Cuando pierde de vista al jugador)
 		if memory and search_time_remaining > 0:
@@ -298,7 +339,6 @@ func combat_behavior():
 			look_at(global_next_pos)
 			velocity = dir * (SPEED / 1.75)
 			move_and_slide()
-
 			if global_position.distance_to(last_known_target_pos) < 10.0 or search_time_remaining <= 0:
 				current_state = State.PATROLLING
 				memory = false
@@ -307,18 +347,14 @@ func combat_zombie_behavior():
 	if not current_has_target or current_target_type != TargetType.ZOMBIE or not is_instance_valid(current_target):
 		current_state = State.PATROLLING
 		return
-
 	memory = false
 	var global_next_pos = nav.get_next_path_position()
 	var dir = (global_next_pos - global_position).normalized()
 	var dist = global_position.distance_to(current_target.global_position)
-
 	if dist > COMBAT_DISTANCE * 0.8: velocity = dir * SPEED
 	elif dist < RETREAT_DISTANCE: velocity = -dir * (SPEED * 1.8)
 	else: velocity = Vector2.ZERO
-
 	move_and_slide()
-
 	if cooldown.is_stopped() and canShoot:
 		cooldown.start()
 
@@ -326,9 +362,7 @@ func patrol_behavior():
 	# Si aún no es hora de regresar, nos aseguramos de que no camine
 	if patrol_timer < PATROL_TIME:
 		velocity = Vector2.ZERO
-
 	patrol_timer += get_physics_process_delta_time()
-
 	match patrol_state:
 		PatrolState.TURNING_RIGHT:
 			rotate(PATROL_ROTATION_SPEED * get_physics_process_delta_time())
@@ -338,41 +372,26 @@ func patrol_behavior():
 			rotate(-PATROL_ROTATION_SPEED * get_physics_process_delta_time())
 			current_patrol_angle -= PATROL_ROTATION_SPEED * get_physics_process_delta_time()
 			if current_patrol_angle <= -MAX_PATROL_ANGLE: patrol_state = PatrolState.TURNING_RIGHT
-
 	# Ya pasaron los 10 segundos, toca regresar a su base
 	if patrol_timer >= PATROL_TIME:
 		var dist_initial = global_position.distance_to(initial_position)
-
-		# Simplificamos la distancia a 10.0 para evitar que se queden en el limbo
 		if dist_initial > 10.0:
-
 			# ¡EL ARREGLO DE OPTIMIZACIÓN ESTÁ AQUÍ!
 			# Solo actualizamos el target_position si no lo hemos asignado previamente.
 			if nav2.target_position != initial_position:
 				nav2.target_position = initial_position
-
 				var next_pos = nav2.get_next_path_position()
 				var return_dir = (next_pos - global_position).normalized()
 				velocity = return_dir * (SPEED / 2)
-
-				# Opcional pero recomendado: que mire hacia donde está dando el siguiente paso
-				# en la ruta, en lugar de mirar su destino a través de los muros.
 				look_at(global_position + velocity)
-
 			else:
-				# Ya llegó a su destino, reseteamos todo
 				patrol_timer = 0.0
 				velocity = Vector2.ZERO
-
-				# Si quieres que vuelvan a mirar hacia la derecha al llegar:
-				# rotation = 0
-
 	move_and_slide()
 
 func hurt_behavior():
 	velocity = Vector2.ZERO
 	patrol_timer += get_physics_process_delta_time()
-
 	match patrol_state:
 		PatrolState.TURNING_RIGHT:
 			rotate(PATROL_HURT_ROTATION_SPEED * get_physics_process_delta_time())
@@ -382,22 +401,32 @@ func hurt_behavior():
 			rotate(-PATROL_HURT_ROTATION_SPEED * get_physics_process_delta_time())
 			current_patrol_angle -= PATROL_HURT_ROTATION_SPEED * get_physics_process_delta_time()
 			if current_patrol_angle <= -MAX_PATROL_ANGLE: patrol_state = PatrolState.TURNING_RIGHT
-
 	if patrol_timer >= PATROL_HURT_TIME:
 		current_state = State.PATROLLING
 		patrol_timer = 0.0
 	move_and_slide()
 
-# --- FUNCIONES DE DAÑO Y DISPARO ---
 func take_damage(amount):
 	life -= amount
 	atked.play()
 
-func take_damage_z(amount):
+func take_damage_z(amount, attacker_pos: Vector2 = Vector2.ZERO):
 	life -= amount
 	atked2.play()
 	# El zombie que nos atacó es una amenaza inmediata
 	zombie_threat_timer = ZOMBIE_THREAT_TIME
+	# Recordar la posición del atacante para poder buscarlo si se pierde de vista
+	if attacker_pos != Vector2.ZERO:
+		last_zombie_attacker_pos = attacker_pos
+
+func take_damage_fire(amount):
+	life -= amount
+	flame_effect.visible = true
+	print(life)
+	flame_anim.play("FIRE")
+	fire_timer = FIRE_DURATION
+	is_on_fire = true
+	fire_damage_accumulator = 0.0
 
 func _on_cooldown_timeout() -> void:
 	if canShoot and current_has_target:
@@ -405,7 +434,6 @@ func _on_cooldown_timeout() -> void:
 		bulletCount = 0
 		var random_cd = randf_range(min_cooldown, max_cooldown)
 		await get_tree().create_timer(random_cd).timeout
-	
 		if current_target_type == TargetType.PLAYER: shootSequence()
 		elif current_target_type == TargetType.ZOMBIE: shootSequence_z()
 
@@ -436,16 +464,13 @@ func shootSequence_z():
 		$Timer.start()
 		await $Timer.timeout
 		canShoot = true
-
 const SHOT_ALERT_RADIUS = 400.0  
 func shoot():
 	var newBullet = bullet.instantiate()
 	newBullet.damage = damage
 	newBullet.sound_c = sound
 	newBullet.position = $Sprite2D/Spawn_bullet.global_position
-
 	EnemySignals.soldier_shot_fired.emit(global_position, global_position, SHOT_ALERT_RADIUS)
-
 	if current_target != null:
 		var base_direction = (current_target.global_position - global_position).normalized()
 		var spread_angle = deg_to_rad(10) 

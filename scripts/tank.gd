@@ -1,5 +1,9 @@
 extends CharacterBody2D
 
+@onready var flame_effect = $FlameEffect
+@onready var flame_effect2 = $FlameEffect2
+@onready var flame_anim = $FlameEffect/AnimationPlayer
+@onready var flame_anim2 = $FlameEffect2/AnimationPlayer
 @onready var target = get_tree().get_first_node_in_group("Player")
 @onready var nav = $NavigationAgent2D
 @onready var nav2 = $NavigationAgent2D2
@@ -79,6 +83,17 @@ var zombie_threat_timer: float = 0.0
 const ZOMBIE_THREAT_TIME = 2.0  # Segundos que un zombie se considera amenaza tras detectarlo cerca
 const ZOMBIE_THREAT_DISTANCE = 100.0  # Distancia máxima para considerar zombie como amenaza inmediata
 
+# Última posición conocida de un zombie que nos atacó (para buscarlo si no lo vemos)
+var last_zombie_attacker_pos: Vector2 = Vector2.ZERO
+
+# --- SISTEMA DE DAÑO POR FUEGO ---
+const FIRE_DURATION = 5.0
+const FIRE_DAMAGE_PER_SECOND = 60
+const FIRE_TICK_INTERVAL = 1.0
+var fire_timer: float = 0.0
+var fire_damage_accumulator: float = 0.0
+var is_on_fire: bool = false
+
 func _ready():
 	# Guardar posición inicial
 	initial_position = global_position
@@ -91,8 +106,8 @@ func _ready():
 
 # --- SEÑALES ---
 func _on_zombie_detected(zombie_pos: Vector2, detector_z_pos: Vector2, alert_radius_z: float):
-	# Ignorar si ya estamos en combate
-	if current_target != null:
+	# Si nos está atacando un zombie, priorizamos la alerta aunque ya tengamos target
+	if current_target != null and zombie_threat_timer <= 0:
 		return
 
 	# Calcular distancia al detector
@@ -213,6 +228,24 @@ func _physics_process(delta: float) -> void:
 	if alert_cooldown > 0: alert_cooldown -= delta
 	if investigation_timer > 0: investigation_timer -= delta
 	if zombie_threat_timer > 0: zombie_threat_timer -= delta
+	
+	# --- SISTEMA DE DAÑO POR FUEGO ---
+	if is_on_fire:
+		fire_timer -= delta
+		fire_damage_accumulator += delta
+		
+		if fire_damage_accumulator >= FIRE_TICK_INTERVAL:
+			life -= FIRE_DAMAGE_PER_SECOND
+			fire_damage_accumulator = 0.0
+		
+		if fire_timer <= 0.0:
+			is_on_fire = false
+			if flame_effect and flame_effect2:
+				flame_effect.visible = false
+				flame_effect2.visible = false
+			fire_timer = 0.0
+			fire_damage_accumulator = 0.0
+	# ---------------------------------
 
 	reaction()
 
@@ -245,6 +278,17 @@ func _physics_process(delta: float) -> void:
 				current_state = State.COMBAT_ZOMBIE
 
 	if hitbox: hitbox = false
+
+	# Prioridad: si nos está atacando un zombie y no lo estamos persiguiendo, buscarlo
+	if zombie_threat_timer > 0 and last_zombie_attacker_pos != Vector2.ZERO:
+		if current_target == null or not is_instance_valid(current_target) or current_target_type != TargetType.ZOMBIE:
+			current_target = null
+			current_target_type = TargetType.ZOMBIE
+			last_heard_position = last_zombie_attacker_pos
+			current_state = State.INVESTIGATING
+			investigating = true
+			investigation_timer = INVESTIGATION_TIME
+			nav_update_timer = 0.0
 
 	# Ejecutar el comportamiento según el estado actual
 	match current_state:
@@ -405,11 +449,26 @@ func take_damage(amount):
 	life -= amount
 	atked.play()
 
-func take_damage_z(amount):
+func take_damage_z(amount, attacker_pos: Vector2 = Vector2.ZERO):
 	life -= amount
 	atked2.play()
 	# El zombie que nos atacó es una amenaza inmediata
 	zombie_threat_timer = ZOMBIE_THREAT_TIME
+	# Recordar la posición del atacante para poder buscarlo si se pierde de vista
+	if attacker_pos != Vector2.ZERO:
+		last_zombie_attacker_pos = attacker_pos
+
+func take_damage_fire(amount):
+	life -= amount
+	if flame_effect and flame_effect2:
+		flame_effect.visible = true
+		flame_effect2.visible = true
+	if flame_anim:
+		flame_anim.play("FIRE")
+		flame_anim2.play("FIRE")
+	fire_timer = FIRE_DURATION
+	is_on_fire = true
+	fire_damage_accumulator = 0.0
 
 func check_player_collision():
 	if current_target == null:
