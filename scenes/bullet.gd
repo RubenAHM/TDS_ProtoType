@@ -57,6 +57,11 @@ func _physics_process(delta: float) -> void:
 				#queue_free()
 				#collider.queue_free()
 				#hitbox es una variable bool que le permite al juego determinar si debe morir el enemigo o no, accedo a ella mediante el collider ya que hitbox se encuentra en los scripts de enemigos
+			elif collider.is_in_group("Breakable"):
+				# La caja se rompe de un solo disparo y suelta un ítem (healing.gd / ammo_*.gd)
+				if collider.has_method("hit"):
+					collider.hit()
+				destroy_bullet()
 			else:
 				#queue_free()
 				destroy_bullet()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=4 uid="uid://cn1s8l51q5mxg"]
+[gd_scene load_steps=39 format=4 uid="uid://cn1s8l51q5mxg"]
 
 [ext_resource type="Texture2D" uid="uid://betei7hosywm7" path="res://assets/environment/new miscs and chars/Background/road dirt.png" id="1_13hs1"]
 [ext_resource type="Texture2D" uid="uid://df8ansadmxvjr" path="res://assets/wo_assets/trees road walls other.jpg" id="1_88ety"]
@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://cojpxa86ic83f" path="res://scenes/sniper.tscn" id="17_jqmoj"]
 [ext_resource type="PackedScene" uid="uid://vvn4dn2achhx" path="res://scenes/tank.tscn" id="18_ni2ok"]
 [ext_resource type="PackedScene" uid="uid://d0qc4b3gl736e" path="res://scenes/soldier_1.tscn" id="19_hnsbs"]
+[ext_resource type="PackedScene" path="res://scenes/breakable_box.tscn" id="20_box"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_47x4r"]
 vertices = PackedVector2Array(8, 8, -8, 8, -8, -8, 8, -8)
@@ -7043,3 +7044,9 @@ position = Vector2(208, -167)
 
 [node name="Soldier_1" parent="." instance=ExtResource("19_hnsbs")]
 position = Vector2(61, -201)
+
+[node name="BreakableBox" parent="." instance=ExtResource("20_box")]
+position = Vector2(-20, 60)
+
+[node name="BreakableBox2" parent="." instance=ExtResource("20_box")]
+position = Vector2(30, 80)
